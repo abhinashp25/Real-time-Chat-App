@@ -20,6 +20,26 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+
+    reactions: [
+      {
+        emoji: { type: String, required: true },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+      },
+    ],
+
+     deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    // isDeletedForAll: sender chose "unsend" — hidden for everyone
+    isDeletedForAll: {
+      type: Boolean,
+      default: false,
+    },
+
   },
   { timestamps: true }
 );
