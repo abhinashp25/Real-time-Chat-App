@@ -1,35 +1,45 @@
-import React from 'react'
 import { useChatStore } from "../store/useChatStore";
-
-import BorderAnimatedContainer from "../components/BorderAnimatedContainer";
-import ProfileHeader from "../components/ProfileHeader";
-import ActiveTabSwitch from "../components/ActiveTabSwitch";
-import ChatsList from "../components/ChatsList";
-import ContactList from "../components/ContactList";
-import ChatContainer from "../components/ChatContainer";
+import ProfileHeader     from "../components/ProfileHeader";
+import ActiveTabSwitch   from "../components/ActiveTabSwitch";
+import ChatsList         from "../components/ChatsList";
+import ContactList       from "../components/ContactList";
+import ChatContainer     from "../components/ChatContainer";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
 
 function ChatPage() {
   const { activeTab, selectedUser } = useChatStore();
 
   return (
-    <div className="relative w-full max-w-6xl h-[800px]">
-      <BorderAnimatedContainer>
-        {/* LEFT SIDE */}
-        <div className="w-80 bg-slate-800/50 backdrop-blur-sm flex flex-col">
-          <ProfileHeader />
-          <ActiveTabSwitch />
+    /* Full-viewport: sidebar + chat panel side-by-side on desktop,
+       single panel on mobile */
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {activeTab === "chats" ? <ChatsList /> : <ContactList />}
-          </div>
+      {/* ── SIDEBAR ─────────────────────────────────────── */}
+      <aside
+        className={`
+          flex-shrink-0 flex flex-col
+          w-full sm:w-[340px] md:w-[360px] lg:w-[400px]
+          border-r
+          ${selectedUser ? "hidden sm:flex" : "flex"}
+        `}
+        style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+      >
+        <ProfileHeader />
+        <ActiveTabSwitch />
+        <div className="flex-1 overflow-y-auto">
+          {activeTab === "chats" ? <ChatsList /> : <ContactList />}
         </div>
+      </aside>
 
-        {/* RIGHT SIDE */}
-        <div className="flex-1 flex flex-col bg-slate-900/50 backdrop-blur-sm">
-          {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
-        </div>
-      </BorderAnimatedContainer>
+      {/* ── CHAT PANEL ──────────────────────────────────── */}
+      <main
+        className={`
+          flex-1 flex flex-col min-w-0 chat-bg
+          ${selectedUser ? "flex" : "hidden sm:flex"}
+        `}
+      >
+        {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
+      </main>
     </div>
   );
 }

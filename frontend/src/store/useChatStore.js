@@ -7,10 +7,16 @@ export const useChatStore = create((set, get) => ({
   allContacts: [],
   chats: [],
   messages: [],
+
   activeTab: "chats",
+  activeFilter: "all",
+  unreadCounts: {},
+
   selectedUser: null,
+
   isUsersLoading: false,
   isMessagesLoading: false,
+
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
 
   typingUsers: {},
@@ -23,6 +29,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   setActiveTab: (tab) => set({ activeTab: tab }),
+  setActiveFilter: (filter) => set({ activeFilter: filter }),
   setSelectedUser: (selectedUser) => set({ selectedUser }),
   setSearchQuery: (q) => set({ searchQuery: q }),
 
@@ -82,8 +89,16 @@ export const useChatStore = create((set, get) => ({
     set({ messages: [...get().messages, optimisticMessage] });
 
     try {
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: get().messages.map((m) => (m._id === tempId ? res.data : m)) });
+      const res = await axiosInstance.post(
+        `/messages/send/${selectedUser._id}`,
+        messageData
+      );
+
+      set({
+        messages: get().messages.map((m) =>
+          m._id === tempId ? res.data : m
+        ),
+      });
     } catch (error) {
       set({ messages: get().messages.filter((m) => m._id !== tempId) });
       toast.error(error.response?.data?.message || "Something went wrong");
@@ -93,9 +108,12 @@ export const useChatStore = create((set, get) => ({
   markMessagesAsRead: async (senderId) => {
     try {
       await axiosInstance.put(`/messages/read/${senderId}`);
+
       set({
         messages: get().messages.map((m) =>
-          m.senderId === senderId && !m.isRead ? { ...m, isRead: true } : m
+          m.senderId === senderId && !m.isRead
+            ? { ...m, isRead: true }
+            : m
         ),
       });
     } catch (error) {
@@ -105,11 +123,15 @@ export const useChatStore = create((set, get) => ({
 
   toggleReaction: async (messageId, emoji) => {
     try {
-      const res = await axiosInstance.put(`/messages/react/${messageId}`, { emoji });
-      // Optimistically update reactions in local state immediately
+      const res = await axiosInstance.put(`/messages/react/${messageId}`, {
+        emoji,
+      });
+
       set({
         messages: get().messages.map((m) =>
-          m._id === messageId ? { ...m, reactions: res.data.reactions } : m
+          m._id === messageId
+            ? { ...m, reactions: res.data.reactions }
+            : m
         ),
       });
     } catch (error) {
@@ -122,16 +144,19 @@ export const useChatStore = create((set, get) => ({
       await axiosInstance.delete(`/messages/${messageId}`, {
         data: { deleteForEveryone },
       });
+
       if (deleteForEveryone) {
-        // Replace with a tombstone so the position in the chat is clear
         set({
           messages: get().messages.map((m) =>
-            m._id === messageId ? { ...m, isDeletedForAll: true, text: null, image: null } : m
+            m._id === messageId
+              ? { ...m, isDeletedForAll: true, text: null, image: null }
+              : m
           ),
         });
       } else {
-        // "Delete for me" — simply remove from local list
-        set({ messages: get().messages.filter((m) => m._id !== messageId) });
+        set({
+          messages: get().messages.filter((m) => m._id !== messageId),
+        });
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Could not delete message");
@@ -141,6 +166,7 @@ export const useChatStore = create((set, get) => ({
   emitTyping: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
+
     const socket = useAuthStore.getState().socket;
     socket?.emit("typing", { to: selectedUser._id });
   },
@@ -148,6 +174,7 @@ export const useChatStore = create((set, get) => ({
   emitStopTyping: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
+
     const socket = useAuthStore.getState().socket;
     socket?.emit("stopTyping", { to: selectedUser._id });
   },
@@ -158,9 +185,9 @@ export const useChatStore = create((set, get) => ({
 
     const socket = useAuthStore.getState().socket;
 
-    // New incoming message
     socket.on("newMessage", (newMessage) => {
       if (newMessage.senderId !== selectedUser._id) return;
+
       set({ messages: [...get().messages, newMessage] });
 
       if (isSoundEnabled) {
@@ -172,21 +199,24 @@ export const useChatStore = create((set, get) => ({
       get().markMessagesAsRead(newMessage.senderId);
     });
 
-    // Read receipts: other person read our messages
     socket.on("messagesRead", ({ by }) => {
       if (by !== selectedUser._id) return;
+
       set({
         messages: get().messages.map((m) =>
-          m.receiverId === by && !m.isRead ? { ...m, isRead: true } : m
+          m.receiverId === by && !m.isRead
+            ? { ...m, isRead: true }
+            : m
         ),
       });
     });
 
-    
     socket.on("messageReaction", ({ messageId, reactions }) => {
       set({
         messages: get().messages.map((m) =>
-          m._id === messageId ? { ...m, reactions } : m
+          m._id === messageId
+            ? { ...m, reactions }
+            : m
         ),
       });
     });
@@ -201,24 +231,31 @@ export const useChatStore = create((set, get) => ({
           ),
         });
       } else {
-        set({ messages: get().messages.filter((m) => m._id !== messageId) });
+        set({
+          messages: get().messages.filter((m) => m._id !== messageId),
+        });
       }
     });
 
     socket.on("userTyping", ({ from }) => {
       if (from !== selectedUser._id) return;
-      set({ typingUsers: { ...get().typingUsers, [from]: true } });
+
+      set({
+        typingUsers: { ...get().typingUsers, [from]: true },
+      });
     });
 
     socket.on("userStoppedTyping", ({ from }) => {
       const next = { ...get().typingUsers };
       delete next[from];
+
       set({ typingUsers: next });
     });
   },
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
+
     socket.off("newMessage");
     socket.off("messagesRead");
     socket.off("messageReaction");

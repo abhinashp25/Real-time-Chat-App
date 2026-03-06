@@ -1,17 +1,14 @@
-import React from "react";
-
-function MessagesLoadingSkeleton() {
+export default function MessagesLoadingSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {[...Array(6)].map((_, index) => (
-        <div
-          key={index}
-          className={`chat ${index % 2 === 0 ? "chat-start" : "chat-end"} animate-pulse`}
-        >
-          <div className={`chat-bubble bg-slate-800 text-white w-32`}></div>
+    <div className="max-w-3xl mx-auto space-y-3 py-4">
+      {[false,true,false,true,false,true,false].map((mine, i) => (
+        <div key={i} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+          <div
+            className="h-10 rounded-2xl shimmer"
+            style={{ width: `${90 + (i * 37) % 130}px` }}
+          />
         </div>
       ))}
     </div>
   );
 }
-export default MessagesLoadingSkeleton;
