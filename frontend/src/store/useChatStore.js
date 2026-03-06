@@ -28,18 +28,19 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/messages/contacts");
       set({ allContacts: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       set({ isUsersLoading: false });
     }
   },
+
   getMyChatPartners: async () => {
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/chats");
       set({ chats: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       set({ isUsersLoading: false });
     }
@@ -58,7 +59,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser } = get();
     const { authUser } = useAuthStore.getState();
 
     const tempId = `temp-${Date.now()}`;
@@ -70,17 +71,24 @@ export const useChatStore = create((set, get) => ({
       text: messageData.text,
       image: messageData.image,
       createdAt: new Date().toISOString(),
-      isOptimistic: true, // flag to identify optimistic messages (optional)
+      isOptimistic: true,
     };
-    // immidetaly update the ui by adding the message
-    set({ messages: [...messages, optimisticMessage] });
+
+    // Immediately update the UI with the optimistic message
+    set({ messages: [...get().messages, optimisticMessage] });
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: messages.concat(res.data) });
+      
+      
+      set({
+        messages: get().messages.map((msg) => (msg._id === tempId ? res.data : msg)),
+      });
     } catch (error) {
-      // remove optimistic message on failure
-      set({ messages: messages });
+      
+      set({
+        messages: get().messages.filter((msg) => msg._id !== tempId),
+      });
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   },
@@ -100,8 +108,7 @@ export const useChatStore = create((set, get) => ({
 
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
-
-        notificationSound.currentTime = 0; // reset to start
+        notificationSound.currentTime = 0;
         notificationSound.play().catch((e) => console.log("Audio play failed:", e));
       }
     });

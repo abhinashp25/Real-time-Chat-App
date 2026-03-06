@@ -13,9 +13,9 @@ router.post("/logout", logout);
 
 router.put("/update-profile", protectRoute, updateProfile);
 
-router.get("/check", protectRoute, (req, res) => {
-    res.status(200).json({message: "Authenticated", user: req.user});
-});
+// FIX: was returning { message: "Authenticated", user: req.user }
+// useAuthStore.checkAuth sets authUser = res.data directly, so return user directly
+router.get("/check", protectRoute, (req, res) => res.status(200).json(req.user));
 
 export default router;
 

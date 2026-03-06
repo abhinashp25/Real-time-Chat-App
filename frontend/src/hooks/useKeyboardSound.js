@@ -1,4 +1,3 @@
-import React from "react";
 // audio setup
 const keyStrokeSounds = [
   new Audio("/sounds/keystroke1.mp3"),
