@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 export default function ChatHeader() {
   const {
     selectedUser, setSelectedUser, setSearchQuery, searchQuery,
-    typingUsers, getMyChatPartners, lastSeenMap, clearChat,
+    typingUsers, getMyChatPartners, lastSeenMap, clearChat, markChatArchived,
   } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
@@ -61,9 +61,10 @@ export default function ChatHeader() {
 
   const handleArchive = async () => {
     try {
-      await axiosInstance.put(`/messages/archive/${selectedUser._id}`);
-      toast.success("Chat archived");
-      await getMyChatPartners();
+      const res = await axiosInstance.put(`/messages/archive/${selectedUser._id}`);
+      const isNowArchived = res.data?.archived ?? true;
+      markChatArchived(selectedUser._id, isNowArchived);
+      toast.success(isNowArchived ? "Chat archived" : "Chat unarchived");
       setSelectedUser(null);
     } catch { toast.error("Failed to archive"); }
     setMenuOpen(false);

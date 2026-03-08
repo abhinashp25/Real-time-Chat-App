@@ -4,7 +4,6 @@ import { ENV } from "../lib/env.js";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import "dotenv/config";
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -103,24 +102,25 @@ export const logout = (_, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic } = req.body; // FIX: was destructuring profilePicture but frontend sends profilePic
-    if (!profilePic) {
-      return res.status(400).json({ message: "Profile picture is required" });
-    }
+    const { profilePic, fullName, bio, status } = req.body;
     const userId = req.user._id;
+    const updates = {};
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    if (profilePic) {
+      const uploadResponse = await cloudinary.uploader.upload(profilePic);
+      updates.profilePic = uploadResponse.secure_url;
+    }
+    if (fullName?.trim()) updates.fullName = fullName.trim();
+    if (bio  !== undefined) updates.bio    = bio.slice(0, 160);
+    if (status !== undefined) updates.status = status.slice(0, 139);
 
-    // FIX: added .select("-password") so password hash is NOT returned to the client
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profilePic: uploadResponse.secure_url }, // FIX: was profilePicture
-      { new: true }
-    ).select("-password");
+    if (!Object.keys(updates).length)
+      return res.status(400).json({ message: "Nothing to update." });
 
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true }).select("-password");
     res.status(200).json(updatedUser);
   } catch (error) {
-    console.log("Error in update Profile: ", error);
-    res.status(500).json({ message: "Internal Server error" });
+    console.log("Error in updateProfile:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

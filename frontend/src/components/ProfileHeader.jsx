@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import {
   LogOutIcon, Volume2Icon, VolumeOffIcon, MoreVerticalIcon,
   BellIcon, BellOffIcon, UserCircleIcon, InfoIcon, EditIcon,
-  ArchiveIcon, SparklesIcon,
+  ArchiveIcon, SparklesIcon, SettingsIcon,
 } from "lucide-react";
 
 function AIIcon({ className }) {
@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 
 const clickSound = new Audio("/sounds/mouse-click.mp3");
 
-export default function ProfileHeader({ onShowAI, onShowArchived, onShowStarred }) {
+export default function ProfileHeader({ onShowAI, onShowArchived, onShowStarred, onShowSettings, onShowAbout }) {
   const { logout, authUser, updateProfile } = useAuthStore();
   const { isSoundEnabled, toggleSound }     = useChatStore();
   const [selectedImg, setSelectedImg]       = useState(null);
@@ -134,10 +134,8 @@ export default function ProfileHeader({ onShowAI, onShowArchived, onShowStarred 
               <AIIcon className="w-4 h-4" style={{ color: '#667eea' }} />
               Chatify AI
             </button>
-            <button className="dropdown-item" onClick={() => {
-              toast("Chatify v2.0 · AI-powered messaging 🤖", { icon: "ℹ️" }); setMenuOpen(false);
-            }}>
-              <InfoIcon className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+            <button className="dropdown-item" onClick={() => { onShowAbout?.(); setMenuOpen(false); }}>
+              <InfoIcon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
               About Chatify
             </button>
             <div className="dropdown-divider" />

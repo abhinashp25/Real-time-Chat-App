@@ -31,8 +31,9 @@ export default function ChatsList() {
   if (isUsersLoading) return <UsersLoadingSkeleton />;
 
   const visible = chats.filter((c) => {
+    if (c.isArchived) return false;
     if (sidebarSearch && !c.fullName.toLowerCase().includes(sidebarSearch.toLowerCase())) return false;
-    if (activeFilter === "unread") return (unreadCounts[c._id] || 0) > 0;
+    if (activeFilter === "unread") return (unreadCounts[c._id] ?? c.unreadCount ?? 0) > 0;
     if (activeFilter === "online") return onlineUsers.includes(c._id);
     return true;
   });

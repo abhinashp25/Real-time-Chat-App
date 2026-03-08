@@ -17,11 +17,11 @@ export const useChatStore = create((set, get) => ({
   searchQuery:       "",
   sidebarSearch:     "",
   unreadCounts:      {},
-  replyingTo:        null,   
-  pendingInput:      null,   
+  replyingTo:        null,   // { messageId, text, senderName, image }
+  pendingInput:      null,   // set by SmartReplies to fill input
   starredMessages:   [],
-  lastSeenMap:       {},     
-  pinnedMessage:     null,   
+  lastSeenMap:       {},     // { userId: isoString }
+  pinnedMessage:     null,   // pinned message in current chat
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -44,9 +44,12 @@ export const useChatStore = create((set, get) => ({
     try {
       await axiosInstance.delete(`/messages/clear/${userId}`);
       set({ messages: [] });
-      // Remove from chats list
       set({ chats: get().chats.filter((c) => c._id !== userId) });
     } catch (e) { toast.error(e.response?.data?.message || "Could not clear chat"); }
+  },
+
+  markChatArchived: (userId, archived) => {
+    set({ chats: get().chats.map((c) => c._id === userId ? { ...c, isArchived: archived } : c) });
   },
 
   getAllContacts: async () => {

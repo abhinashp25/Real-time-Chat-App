@@ -6,8 +6,7 @@ import {
   SendIcon, ImageIcon, SmileIcon, XIcon, LogOutIcon, MicIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
-
-const QUICK_EMOJIS = ["😊","😂","❤️","👍","🔥","😢","😮","🙏","😍","🎉"];
+import EmojiPicker from "./EmojiPicker";
 
 export default function GroupChatWindow({ group, onClose }) {
   const { authUser } = useAuthStore();

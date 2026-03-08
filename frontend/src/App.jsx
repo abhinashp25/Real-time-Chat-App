@@ -4,12 +4,14 @@ import ChatPage    from './pages/ChatPage';
 import LoginPage   from './pages/LoginPage';
 import SignUpPage  from './pages/SignupPage';
 import { useAuthStore } from "./store/useAuthStore";
+import { useSettingsStore } from "./store/useSettingsStore";
 import PageLoader  from './components/PageLoader';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
   const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
-  useEffect(() => { checkAuth(); }, [checkAuth]);
+  const { applyStoredTheme } = useSettingsStore();
+  useEffect(() => { checkAuth(); applyStoredTheme(); }, [checkAuth]);
   if (isCheckingAuth) return <PageLoader />;
 
   return (

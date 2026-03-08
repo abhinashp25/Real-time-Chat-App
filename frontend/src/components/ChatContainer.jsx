@@ -18,6 +18,7 @@ export default function ChatContainer() {
     messages, isMessagesLoading, subscribeToMessages, unsubscribeFromMessages,
     toggleReaction, deleteMessage, searchQuery,
     setReplyingTo, toggleStarMessage, togglePinMessage, pinnedMessage,
+    toggleFavourite, isFavourite,
   } = useChatStore();
   const { authUser } = useAuthStore();
 
@@ -26,7 +27,9 @@ export default function ChatContainer() {
   const [hoveredMsg, setHovered] = useState(null);
   const [forwardMsg, setForwardMsg] = useState(null);
   const [currentInput, setCurrentInput] = useState("");
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
   const holdTimer = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     getMessagesByUserId(selectedUser._id);
@@ -35,7 +38,20 @@ export default function ChatContainer() {
     return () => unsubscribeFromMessages();
   }, [selectedUser._id]);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      setShowScrollBtn(distFromBottom > 300);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!showScrollBtn) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     const close = () => setCtx(null);
@@ -311,6 +327,7 @@ function highlightMatch(text, query) {
 }
 
 
+// ── WhatsApp-style Image Bubble — tap to view, arrow to download ──────────────
 function ImageBubble({ src, isMine }) {
   const [opened, setOpened] = useState(false);
   const [lightbox, setLightbox] = useState(false);
@@ -384,93 +401,107 @@ function ImageBubble({ src, isMine }) {
   );
 }
 
+// ── WhatsApp-style Audio Bubble — press play arrow to load ────────────────────
 function AudioBubble({ src, isMine }) {
-  const [loaded, setLoaded]   = useState(false);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
 
   const toggle = () => {
-    if (!loaded) { setLoaded(true); return; }
     if (!audioRef.current) return;
     if (playing) { audioRef.current.pause(); setPlaying(false); }
-    else { audioRef.current.play(); setPlaying(true); }
+    else { audioRef.current.play().then(() => setPlaying(true)).catch(() => {}); }
   };
-
-  const handleTimeUpdate = () => {
-    if (!audioRef.current) return;
-    setProgress(audioRef.current.currentTime);
-  };
-
-  const handleLoadedMetadata = () => {
-    if (!audioRef.current) return;
-    setDuration(audioRef.current.duration);
-    audioRef.current.play().then(() => setPlaying(true)).catch(() => {});
-  };
-
-  const handleEnded = () => setPlaying(false);
 
   const fmtTime = (s) => {
-    const m = Math.floor((s || 0) / 60);
-    const sec = Math.floor((s || 0) % 60);
+    if (!s || isNaN(s)) return "0:00";
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
     return `${m}:${sec.toString().padStart(2, "0")}`;
   };
 
   const pct = duration > 0 ? (progress / duration) * 100 : 0;
 
-  return (
-    <div className="flex items-center gap-3 mb-1" style={{ minWidth: 200 }}>
-      {/* Play/Pause button */}
-      <button onClick={toggle}
-        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95"
-        style={{
-          background: isMine ? 'rgba(255,255,255,0.2)' : 'rgba(79,209,197,0.25)',
-        }}>
-        {playing ? (
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" style={{ color: isMine ? 'white' : '#4fd1c5' }}>
-            <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
-          </svg>
-        ) : (
-          <svg className="w-4 h-4 ml-0.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: isMine ? 'white' : '#4fd1c5' }}>
-            <polygon points="5,3 19,12 5,21"/>
-          </svg>
-        )}
-      </button>
+  // Fake waveform bars
+  const BARS = [3,5,8,6,9,4,7,10,6,8,5,4,9,7,6,8,5,3,7,9,4,6,8,5,7,9,6,4,8,6];
 
-      {/* Waveform + progress */}
+  return (
+    <div className="flex items-center gap-2.5 mb-1" style={{ minWidth: 220, maxWidth: 280 }}>
+      {/* Profile pic */}
+      <div className="w-9 h-9 rounded-full flex-shrink-0 overflow-hidden"
+        style={{ background: isMine ? 'rgba(255,255,255,0.2)' : 'rgba(79,209,197,0.2)' }}>
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full p-2"
+          style={{ color: isMine ? 'rgba(255,255,255,0.7)' : '#4fd1c5' }}>
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+        </svg>
+      </div>
+
       <div className="flex-1">
-        <div className="relative h-2 rounded-full overflow-hidden mb-1.5 cursor-pointer"
-          style={{ background: isMine ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)' }}
-          onClick={(e) => {
-            if (!audioRef.current || !duration) return;
-            const rect = e.currentTarget.getBoundingClientRect();
-            const pct = (e.clientX - rect.left) / rect.width;
-            audioRef.current.currentTime = pct * duration;
-            setProgress(pct * duration);
-          }}>
-          <div className="h-full rounded-full transition-all"
-            style={{ width: `${pct}%`, background: isMine ? 'rgba(255,255,255,0.8)' : '#4fd1c5' }} />
+        {/* Waveform bars + play btn row */}
+        <div className="flex items-center gap-1.5">
+          <button onClick={toggle}
+            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90"
+            style={{ background: isMine ? 'rgba(255,255,255,0.25)' : 'rgba(79,209,197,0.25)' }}>
+            {playing ? (
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"
+                style={{ color: isMine ? 'white' : '#4fd1c5' }}>
+                <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5 ml-0.5" viewBox="0 0 24 24" fill="currentColor"
+                style={{ color: isMine ? 'white' : '#4fd1c5' }}>
+                <polygon points="5,3 19,12 5,21"/>
+              </svg>
+            )}
+          </button>
+
+          {/* Animated waveform */}
+          <div className="flex items-center gap-[2px] flex-1 cursor-pointer h-8"
+            onClick={(e) => {
+              if (!audioRef.current || !duration) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              const p = (e.clientX - rect.left) / rect.width;
+              audioRef.current.currentTime = p * duration;
+              setProgress(p * duration);
+            }}>
+            {BARS.map((h, i) => {
+              const barPct = (i / BARS.length) * 100;
+              const active = barPct <= pct;
+              return (
+                <div key={i}
+                  className="rounded-full flex-1 transition-all"
+                  style={{
+                    height: `${h * 2.5}px`,
+                    background: active
+                      ? (isMine ? 'rgba(255,255,255,0.9)' : '#4fd1c5')
+                      : (isMine ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.2)'),
+                    animation: playing ? `wave-${(i % 4) + 1} 0.6s ease-in-out infinite` : 'none',
+                  }}
+                />
+              );
+            })}
+          </div>
         </div>
-        <p className="text-[10px] opacity-50">
-          {playing || progress > 0 ? fmtTime(progress) : fmtTime(duration)} {!loaded && "· tap to play"}
+
+        {/* Time */}
+        <p className="text-[10px] mt-0.5 pl-[38px]"
+          style={{ color: isMine ? 'rgba(255,255,255,0.5)' : 'var(--text-muted)' }}>
+          {fmtTime(playing || progress > 0 ? progress : duration)}
         </p>
       </div>
 
-      {/* Hidden audio element — only loaded when user taps play */}
-      {loaded && (
-        <audio ref={audioRef} src={src} preload="metadata"
-          onLoadedMetadata={handleLoadedMetadata}
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={handleEnded}
-          className="hidden" />
-      )}
-
-      {/* Mic icon */}
-      <svg className="w-4 h-4 flex-shrink-0 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-      </svg>
+      {/* Always-mounted audio element */}
+      <audio ref={audioRef} src={src} preload="metadata"
+        onLoadedMetadata={() => {
+          if (audioRef.current) setDuration(audioRef.current.duration);
+        }}
+        onTimeUpdate={() => {
+          if (audioRef.current) setProgress(audioRef.current.currentTime);
+        }}
+        onEnded={() => { setPlaying(false); setProgress(0); }}
+        className="hidden" />
     </div>
   );
 }

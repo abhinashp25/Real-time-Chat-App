@@ -15,7 +15,7 @@ export default function SmartReplies({ lastMessage }) {
   if (!smartReplies.length) return null;
 
   const handleSelect = (reply) => {
-    setPendingInput(reply);   
+    setPendingInput(reply);   // fills MessageInput via React state
     clearSmartReplies();
   };
 

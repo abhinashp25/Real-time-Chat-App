@@ -19,7 +19,6 @@ export const getChatPartners = async (req, res) => {
       isDeletedForAll: false,
     }).sort({ createdAt: -1 });
 
-    // Build map: partnerId → last message
     const partnerLastMsg = {};
     for (const msg of messages) {
       const partnerId = msg.senderId.equals(myId)
@@ -42,6 +41,10 @@ export const getChatPartners = async (req, res) => {
       }
     }
 
+    // Get user's archived list to mark/exclude
+    const currentUser = await User.findById(myId).select("archivedChats");
+    const archivedSet = new Set((currentUser.archivedChats || []).map(String));
+
     const enriched = partners.map((p) => {
       const lastMsg = partnerLastMsg[p._id.toString()];
       return {
@@ -57,6 +60,7 @@ export const getChatPartners = async (req, res) => {
           isDeleted: lastMsg.isDeletedForAll,
         },
         unreadCount: unreadCounts[p._id.toString()] || 0,
+        isArchived: archivedSet.has(p._id.toString()),
       };
     });
 
@@ -237,7 +241,6 @@ export const togglePinMessage = async (req, res) => {
     message.isPinned = !message.isPinned;
     await message.save();
 
-    // Notify both
     const otherId = message.senderId.equals(req.user._id) ? message.receiverId : message.senderId;
     const otherSocket = getReceiverSocketId(otherId.toString());
     if (otherSocket) io.to(otherSocket).emit("messagePinned", { messageId, isPinned: message.isPinned });

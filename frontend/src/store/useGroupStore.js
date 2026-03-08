@@ -96,6 +96,9 @@ export const useGroupStore = create((set, get) => ({
     socket.on("newGroupMessage", (msg) => {
       const groupId = msg.groupId;
       const cur = get().groupMessages[groupId] || [];
+      // Skip if this message already exists (sent optimistically by this client)
+      const alreadyExists = cur.some((m) => m._id === msg._id);
+      if (alreadyExists) return;
       set({ groupMessages: { ...get().groupMessages, [groupId]: [...cur, msg] } });
       // Update group's last message in list
       set({
