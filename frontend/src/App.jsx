@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import ChatPage    from './pages/ChatPage';
 import LoginPage   from './pages/LoginPage';
 import SignUpPage  from './pages/SignupPage';
@@ -16,6 +17,7 @@ function App() {
 
   return (
     <div className="app-bg min-h-screen min-h-[100dvh]">
+      <SpeedInsights />
       <Routes>
         <Route path="/"       element={authUser ? <ChatPage />  : <Navigate to="/login" />} />
         <Route path="/login"  element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
