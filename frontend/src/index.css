@@ -17,6 +17,7 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* ── CSS Variables ──────────────────────────────────────────────────────── */
 :root {
   --bg-primary:    #080e1a;
   --bg-secondary:  rgba(14, 20, 34, 0.85);
@@ -158,6 +159,7 @@ html, body {
   background: rgba(255,255,255,0.04);
 }
 
+/* ── Message bubbles — glassmorphism ────────────────────────────────────── */
 .bubble {
   padding: 9px 13px;
   font-size: 14px;
@@ -187,6 +189,7 @@ html, body {
 .bubble-mine   { border-radius: 18px 18px 4px 18px !important; }
 .bubble-theirs { border-radius: 18px 18px 18px 4px !important; }
 
+/* ── Sidebar panel — frosted glass ──────────────────────────────────────── */
 .sidebar-glass {
   background: rgba(14, 20, 34, 0.88);
   backdrop-filter: blur(24px);
@@ -194,6 +197,7 @@ html, body {
   border-right: 1px solid rgba(255,255,255,0.07);
 }
 
+/* ── Header bar — glass ─────────────────────────────────────────────────── */
 .header-glass {
   background: rgba(18, 26, 42, 0.92);
   backdrop-filter: blur(24px);
@@ -201,6 +205,7 @@ html, body {
   border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 
+/* ── Dropdown menu — premium glass ──────────────────────────────────────── */
 .dropdown-menu {
   position: absolute;
   min-width: 200px;
@@ -235,6 +240,7 @@ html, body {
 }
 .dropdown-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0; }
 
+/* ── Modal overlay — glass backdrop ─────────────────────────────────────── */
 .modal-glass {
   background: rgba(18, 26, 44, 0.90);
   backdrop-filter: blur(28px);
@@ -243,6 +249,7 @@ html, body {
   box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
 }
 
+/* ── Glass card — general purpose ───────────────────────────────────────── */
 .glass-card {
   background: rgba(255,255,255,0.04);
   backdrop-filter: blur(20px);
@@ -252,6 +259,7 @@ html, body {
   box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
+/* ── Unread badge ────────────────────────────────────────────────────────── */
 .unread-badge {
   min-width: 20px;
   height: 20px;
@@ -267,6 +275,7 @@ html, body {
   box-shadow: 0 0 10px rgba(79,209,197,0.4);
 }
 
+/* ── Bottom nav bar — glass ─────────────────────────────────────────────── */
 .bottom-nav-glass {
   background: rgba(12, 18, 32, 0.92);
   backdrop-filter: blur(28px);
@@ -275,6 +284,7 @@ html, body {
   box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
 }
 
+/* ── Input pill (message bar) — glass ───────────────────────────────────── */
 .input-pill-glass {
   background: rgba(30, 44, 70, 0.75);
   backdrop-filter: blur(16px);
@@ -287,6 +297,7 @@ html, body {
   box-shadow: 0 0 0 3px rgba(79,209,197,0.07);
 }
 
+/* ── Glow text & borders ─────────────────────────────────────────────────── */
 .glow-accent {
   text-shadow: 0 0 16px rgba(79,209,197,0.6);
 }
@@ -294,6 +305,7 @@ html, body {
   box-shadow: 0 0 0 1px rgba(79,209,197,0.3), 0 0 20px rgba(79,209,197,0.15);
 }
 
+/* ── Pinned message banner — glass ──────────────────────────────────────── */
 .pinned-glass {
   background: rgba(79,209,197,0.06);
   backdrop-filter: blur(12px);
@@ -301,6 +313,7 @@ html, body {
   border-bottom: 1px solid rgba(79,209,197,0.12);
 }
 
+/* ── Context menu — glass ───────────────────────────────────────────────── */
 .ctx-menu {
   position: fixed;
   z-index: 100;
@@ -315,6 +328,7 @@ html, body {
   animation: animate-dropdown 0.15s cubic-bezier(0.34,1.56,0.64,1);
 }
 
+/* ── Profile/Contact panel — glass ──────────────────────────────────────── */
 .panel-glass {
   background: rgba(14, 20, 36, 0.95);
   backdrop-filter: blur(32px);
@@ -322,6 +336,7 @@ html, body {
   border-left: 1px solid rgba(255,255,255,0.08);
 }
 
+/* ── Skeleton loading ────────────────────────────────────────────────────── */
 .skeleton {
   background: linear-gradient(
     90deg,
@@ -334,6 +349,7 @@ html, body {
   border-radius: 8px;
 }
 
+/* ── Animations ─────────────────────────────────────────────────────────── */
 @keyframes animate-dropdown {
   from { opacity: 0; transform: scale(0.95) translateY(-6px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
@@ -382,6 +398,7 @@ html, body {
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
+/* ── Date divider ────────────────────────────────────────────────────────── */
 .date-divider {
   display: flex;
   align-items: center;
@@ -406,6 +423,7 @@ html, body {
   white-space: nowrap;
 }
 
+/* ── Pill buttons ────────────────────────────────────────────────────────── */
 .pill-btn {
   display: inline-flex;
   align-items: center;
@@ -433,6 +451,7 @@ html, body {
   border: 1px solid rgba(255,255,255,0.1);
 }
 
+/* ── Filter pills ────────────────────────────────────────────────────────── */
 .filter-pill {
   display: inline-flex;
   align-items: center;
@@ -457,6 +476,7 @@ html, body {
   box-shadow: 0 0 12px rgba(79,209,197,0.2);
 }
 
+/* ── Section header ──────────────────────────────────────────────────────── */
 .section-header {
   padding: 6px 16px;
   font-size: 11px;
@@ -471,6 +491,7 @@ html, body {
   z-index: 10;
 }
 
+/* ── Auth page container ─────────────────────────────────────────────────── */
 .auth-container {
   min-height: 100vh;
   min-height: 100dvh;
@@ -481,8 +502,10 @@ html, body {
   overflow: hidden;
 }
 
+/* ── Safe area ───────────────────────────────────────────────────────────── */
 .safe-bottom { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
 
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .dropdown-menu { min-width: 160px; }
   .bubble { max-width: 85% !important; }

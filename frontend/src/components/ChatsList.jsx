@@ -19,7 +19,7 @@ function timeAgo(iso) {
   return d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
-export default function ChatsList() {
+export default function ChatsList({ onSelectUser }) {
   const {
     getMyChatPartners, chats, isUsersLoading, setSelectedUser,
     selectedUser, unreadCounts, activeFilter, sidebarSearch,
@@ -66,7 +66,7 @@ export default function ChatsList() {
         const lastMsg  = chat.lastMessage;
 
         return (
-          <div key={chat._id} onClick={() => setSelectedUser(chat)}
+          <div key={chat._id} onClick={() => onSelectUser ? onSelectUser(chat) : setSelectedUser(chat)}
             className={`chat-row ${isActive ? "active" : ""}`}>
 
             {/* Avatar with online dot */}

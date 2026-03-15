@@ -111,8 +111,7 @@ export default function MessageInput({ onTextChange }) {
     : "90d";
 
   return (
-    <div className="flex-shrink-0 safe-bottom"
-      style={{ background: "var(--bg-header)", borderTop: "1px solid var(--border)" }}>
+    <div className="flex-shrink-0 safe-bottom header-glass">
 
       {/* Reply preview */}
       {replyingTo && <ReplyBar />}
@@ -174,8 +173,7 @@ export default function MessageInput({ onTextChange }) {
           <VoiceRecorder onSend={handleVoiceSend} onCancel={() => setVoiceMode(false)} />
         ) : (
           <>
-            <div className="flex-1 flex items-end rounded-[22px] px-4 py-2 min-h-[44px]"
-              style={{ background: "var(--bg-input)", border: "1px solid var(--border)" }}>
+            <div className="flex-1 flex items-end rounded-[22px] px-4 py-2 min-h-[44px] input-pill-glass">
               <input
                 ref={inputRef}
                 type="text"
