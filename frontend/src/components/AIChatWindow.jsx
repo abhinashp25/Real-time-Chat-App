@@ -38,13 +38,11 @@ export default function AIChatWindow({ onClose }) {
         <div className="absolute top-0 left-0 right-0 h-[2px]"
           style={{ background: 'linear-gradient(90deg, #667eea 0%, #4fd1c5 100%)' }} />
 
-        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 relative"
-          style={{ background: 'linear-gradient(135deg, #667eea 0%, #4fd1c5 100%)' }}>
-          <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9l-1 2H8l1-2-1-2h4l1 2zm4 0l-1 2h-2l1-2-1-2h2l1 2z"/>
-          </svg>
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px]"
-            style={{ background: '#4fd1c5', border: '1.5px solid #0f1621' }}>✦</span>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #1a2535 0%, #0d1a2a 100%)', boxShadow: '0 4px 16px rgba(102,126,234,0.35), 0 0 0 1px rgba(102,126,234,0.2)' }}>
+          <img src="/ai-avatar.png" alt="Chatify AI" className="w-9 h-9 object-contain" style={{ filter: 'drop-shadow(0 1px 4px rgba(102,126,234,0.5))' }} />
+          <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px]"
+            style={{ background: 'linear-gradient(135deg, #667eea, #4fd1c5)', border: '1.5px solid #0f1621' }}>✦</span>
         </div>
 
         <div className="flex-1">

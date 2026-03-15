@@ -52,15 +52,12 @@ export default function SignupPage() {
         {/* Logo + Title */}
         <div className="text-center mb-7">
           <div className="relative inline-block mb-4">
-            <div className="absolute inset-0 rounded-full opacity-40 blur-xl"
-              style={{ background: 'linear-gradient(135deg, #667eea, #4fd1c5)', transform: 'scale(1.4)' }} />
-            <div className="relative w-18 h-18 w-[72px] h-[72px] rounded-full flex items-center justify-center shadow-2xl"
-              style={{ background: 'linear-gradient(135deg, #667eea 0%, #4fd1c5 100%)' }}>
-              <svg className="w-9 h-9 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9l-1 2H8l1-2-1-2h4l1 2zm4 0l-1 2h-2l1-2-1-2h2l1 2z"/>
-              </svg>
-            </div>
-          </div>
+            <div className="absolute inset-0 rounded-2xl opacity-50 blur-2xl"
+              style={{ background: 'linear-gradient(135deg, #667eea, #4fd1c5)', transform: 'scale(1.6)' }} />
+            <div className="relative w-[72px] h-[72px] rounded-2xl flex items-center justify-center overflow-hidden"
+              style={{ background: 'linear-gradient(135deg, #0d2137 0%, #132a47 100%)', boxShadow: '0 8px 40px rgba(102,126,234,0.4), 0 0 0 1px rgba(102,126,234,0.2)' }}>
+              <img src="/logo.png" alt="Chatify" className="w-12 h-12 object-contain" style={{ filter: 'drop-shadow(0 2px 8px rgba(102,126,234,0.6))' }} />
+            </div>          </div>
           <h1 className="text-[26px] font-bold" style={{ color: 'var(--text-primary)' }}>Create your account</h1>
           <p className="text-[13px] mt-1" style={{ color: 'var(--text-muted)' }}>Join millions of people on Chatify</p>
         </div>
