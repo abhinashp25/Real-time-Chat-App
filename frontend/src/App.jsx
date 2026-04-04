@@ -8,11 +8,21 @@ import { useAuthStore } from "./store/useAuthStore";
 import { useSettingsStore } from "./store/useSettingsStore";
 import PageLoader  from './components/PageLoader';
 import { Toaster } from 'react-hot-toast';
+import CommandPalette from './components/CommandPalette';
+import CallOverlay from './components/CallOverlay';
+import { useCallStore } from './store/useCallStore';
 
 function App() {
   const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
   const { applyStoredTheme } = useSettingsStore();
   useEffect(() => { checkAuth(); applyStoredTheme(); }, [checkAuth]);
+  
+  useEffect(() => {
+    if (authUser) {
+      useCallStore.getState().initListeners();
+    }
+  }, [authUser]);
+
   if (isCheckingAuth) return <PageLoader />;
 
   return (
@@ -23,6 +33,8 @@ function App() {
         <Route path="/login"  element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
       </Routes>
+      <CommandPalette />
+      <CallOverlay />
       <Toaster
         position="top-center"
         toastOptions={{

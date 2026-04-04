@@ -11,6 +11,7 @@ import aiRoutes        from "./routes/ai.route.js";
 import scheduleRoutes  from "./routes/schedule.route.js";
 import disappearRoutes from "./routes/disappear.route.js";
 import searchRoutes    from "./routes/search.route.js";
+import statusRoutes    from "./routes/status.route.js";
 
 import { connectDB } from "./lib/db.js";
 import { ENV }       from "./lib/env.js";
@@ -31,6 +32,7 @@ app.use("/api/ai",        aiRoutes);
 app.use("/api/scheduled", scheduleRoutes);
 app.use("/api/disappear", disappearRoutes);
 app.use("/api/search",    searchRoutes);
+app.use("/api/status",    statusRoutes);
 
 if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));

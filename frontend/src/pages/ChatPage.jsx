@@ -12,6 +12,7 @@ import GroupChatWindow    from "../components/GroupChatWindow";
 import AIChatWindow       from "../components/AIChatWindow";
 import ArchivedChats      from "../components/ArchivedChats";
 import StarredMessages    from "../components/StarredMessages";
+import StatusTray         from "../components/StatusTray";
 import CreateGroupModal   from "../components/CreateGroupModal";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
 import SettingsPage       from "./SettingsPage";
@@ -100,6 +101,7 @@ function ChatPage() {
           onShowStarred={() => setShowStarred(true)}
           onShowSettings={() => setShowSettings(true)}
         />
+        <StatusTray />
         <ActiveTabSwitch extraActions={
           <button onClick={() => setShowNewGroup(true)} className="icon-btn" title="New group">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

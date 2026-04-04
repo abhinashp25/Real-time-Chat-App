@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { useCallStore } from "../store/useCallStore";
 import { axiosInstance } from "../lib/axios";
 import StarredMessages    from "./StarredMessages";
 import ContactInfoPanel   from "./ContactInfoPanel";
@@ -20,6 +21,7 @@ export default function ChatHeader() {
     markChatArchived, disappearSeconds, setDisappearSeconds,
   } = useChatStore();
   const { onlineUsers } = useAuthStore();
+  const { startCall } = useCallStore();
 
   const [menuOpen,         setMenuOpen]         = useState(false);
   const [searchOpen,       setSearchOpen]        = useState(false);
@@ -145,10 +147,10 @@ export default function ChatHeader() {
             )}
           </div>
 
-          <button className="icon-btn" title="Voice call" onClick={() => toast("Voice calls coming soon! 📞", { icon: "📞" })}>
+          <button className="icon-btn" title="Voice call" onClick={() => startCall(selectedUser._id, false)}>
             <PhoneIcon className="w-[17px] h-[17px]" />
           </button>
-          <button className="icon-btn" title="Video call" onClick={() => toast("Video calls coming soon! 📹", { icon: "📹" })}>
+          <button className="icon-btn" title="Video call" onClick={() => startCall(selectedUser._id, true)}>
             <VideoIcon className="w-[17px] h-[17px]" />
           </button>
 

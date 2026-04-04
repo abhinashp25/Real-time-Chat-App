@@ -6,6 +6,7 @@ import EmojiPicker       from "./EmojiPicker";
 import ReplyBar          from "./ReplyBar";
 import ScheduleModal     from "./ScheduleModal";
 import toast from "react-hot-toast";
+import { Mic, MicOff } from "lucide-react";
 
 const STOP_DELAY = 1500;
 
@@ -19,8 +20,9 @@ export default function MessageInput({ onTextChange }) {
   const fileRef   = useRef(null);
   const inputRef  = useRef(null);
   const timerRef  = useRef(null);
-  const holdTimer = useRef(null);  // for long-press on send
+  const holdTimer = useRef(null);
   const typingRef = useRef(false);
+  const recognitionRef = useRef(null);
 
   const {
     sendMessage, isSoundEnabled, emitTyping, emitStopTyping,
@@ -44,6 +46,48 @@ export default function MessageInput({ onTextChange }) {
     timerRef.current = setTimeout(() => { typingRef.current = false; emitStopTyping(); }, STOP_DELAY);
     if (val.length === 0) { clearTimeout(timerRef.current); typingRef.current = false; emitStopTyping(); }
   }, [emitTyping, emitStopTyping, onTextChange]);
+
+  const toggleVoiceTyping = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error("Voice typing is not supported in this browser.");
+      return;
+    }
+    
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+      }
+      if (finalTranscript) {
+        setText((prev) => prev + (prev ? " " : "") + finalTranscript);
+        handleTyping(text + finalTranscript);
+      }
+    };
+
+    recognition.onerror = () => {
+      recognitionRef.current = null;
+      toast.error("Voice typing error or interrupted");
+    };
+
+    recognition.onend = () => {
+      recognitionRef.current = null;
+    };
+
+    recognition.start();
+    recognitionRef.current = recognition;
+    toast.success("Voice typing started. Speak now...", { icon: "🎤" });
+  };
 
   const handleSend = () => {
     if (!text.trim() && !imgPreview) return;
@@ -180,10 +224,13 @@ export default function MessageInput({ onTextChange }) {
                 value={text}
                 onChange={(e) => { setText(e.target.value); handleTyping(e.target.value); }}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder="Type a message"
+                placeholder="Type a message or use voice 🎤"
                 className="flex-1 bg-transparent border-none focus:outline-none text-[14px] leading-[1.4]"
                 style={{ color: "var(--text-primary)", fontFamily: "inherit", minWidth: 0 }}
               />
+              <button type="button" onClick={toggleVoiceTyping} className="flex-shrink-0 ml-2" style={{ color: recognitionRef.current ? "var(--accent)" : "var(--text-muted)" }}>
+                {recognitionRef.current ? <Mic size={20} className="animate-pulse text-premium-cyan" /> : <MicOff size={20} />}
+              </button>
               <button type="button" onClick={() => fileRef.current?.click()}
                 className="flex-shrink-0 ml-2 mb-0.5"
                 style={{ color: "var(--text-muted)" }}>

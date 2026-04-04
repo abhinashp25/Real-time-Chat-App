@@ -58,6 +58,42 @@ io.on("connection", (socket) => {
     socket.to(`group:${groupId}`).emit("groupUserStoppedTyping", { groupId, from: userId });
   });
 
+  // --- WebRTC Signaling Events --- //
+  socket.on("callUser", ({ userToCall, signalData, from, name, isVideo }) => {
+    const receiverSocketId = userSocketMap[userToCall];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("callUser", { signal: signalData, from, name, isVideo });
+    }
+  });
+
+  socket.on("answerCall", ({ to, signal }) => {
+    const receiverSocketId = userSocketMap[to];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("callAccepted", signal);
+    }
+  });
+
+  socket.on("endCall", ({ to }) => {
+    const receiverSocketId = userSocketMap[to];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("callEnded");
+    }
+  });
+
+  socket.on("iceCandidate", ({ to, candidate }) => {
+    const receiverSocketId = userSocketMap[to];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("iceCandidate", candidate);
+    }
+  });
+
+  socket.on("rejectCall", ({ to }) => {
+    const receiverSocketId = userSocketMap[to];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("callRejected");
+    }
+  });
+
   socket.on("disconnect", () => {
     delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
