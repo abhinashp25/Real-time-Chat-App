@@ -101,7 +101,14 @@ function ChatPage() {
           ${panelOpen ? "hidden sm:flex" : "flex"}`}
         style={{ background: "#111b21", borderRight: "1px solid rgba(255,255,255,0.05)" }}
       >
-        {(!activeTab || ["chats", "chatify-ai", "settings"].includes(activeTab)) && <ChatsList onSelectUser={openChat} />}
+        {(!activeTab || ["chats", "chatify-ai", "settings"].includes(activeTab)) && (
+          <ChatsList 
+            onSelectUser={openChat} 
+            onSelectGroup={openGroup} 
+            onShowNewGroup={() => setShowNewGroup(true)} 
+            onShowStarred={() => setShowStarred(true)} 
+          />
+        )}
         {activeTab === "contacts"    && <div className="flex-1 overflow-y-auto"><ContactList /></div>}
         {activeTab === "communities" && (
           <div className="flex-1 overflow-y-auto">

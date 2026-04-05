@@ -23,6 +23,7 @@ export const useChatStore = create((set, get) => ({
   lastSeenMap:       {},
   pinnedMessage:     null,
   disappearSeconds:  0,  
+  favourites:        JSON.parse(localStorage.getItem("chatify-favourites")) || [],
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -41,6 +42,16 @@ export const useChatStore = create((set, get) => ({
   setPendingInput:  (text) => set({ pendingInput: text }),
   clearPendingInput:() => set({ pendingInput: null }),
   setDisappearSeconds: (s) => set({ disappearSeconds: s }),
+
+  toggleFavourite: (id) => {
+    const isFav = get().favourites.includes(id);
+    const updated = isFav 
+      ? get().favourites.filter(f => f !== id)
+      : [...get().favourites, id];
+    localStorage.setItem("chatify-favourites", JSON.stringify(updated));
+    set({ favourites: updated });
+    toast(isFav ? "Removed from favourites" : "Added to favourites", { duration: 1500 });
+  },
 
   clearChat: async (userId) => {
     try {
