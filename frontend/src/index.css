@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,22 +10,24 @@
 }
 
 html, body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 15px;
-  background-color: #111b21;
+  background-color: #0b141a;
   margin: 0; padding: 0;
   overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── CSS Variables ─────────────────────────────────────────────────────────── */
+/* ── CSS Variables – WhatsApp Dark Mode (Pure Native) ─────────────────── */
 :root {
-  --bg-primary:    #111b21;
-  --bg-secondary:  #1f2c33;
+  --bg-primary:    #0b141a;
+  --bg-secondary:  #111b21;
   --bg-panel:      #202c33;
   --bg-header:     #202c33;
   --bg-input:      #2a3942;
-  --bg-hover:      rgba(255,255,255,0.05);
-  --bg-active:     rgba(0,168,132,0.10);
+  --bg-hover:      rgba(255,255,255,0.04);
+  --bg-active:     #2a3942;
   --accent:        #00a884;
   --accent-dim:    rgba(0,168,132,0.15);
   --accent-hover:  #008f6f;
@@ -43,23 +45,22 @@ html, body {
   --shadow-lg:     0 8px 32px rgba(0,0,0,0.6);
 }
 
-/* ── Scrollbar ──────────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
+/* ── Scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ── Chat wallpaper (WhatsApp classic dark doodle) ─────────────────────────── */
+/* ── WhatsApp Chat Wallpaper ──────────────────────────────────────────── */
 .chat-bg {
   background-color: #0b141a;
-  background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
-  background-blend-mode: soft-light;
-  background-size: 412px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='0.3' stroke-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='25'/%3E%3Cpath d='M20,30 Q30,15 40,30 Q30,45 20,30Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 60px;
 }
 
-/* ── Message Bubbles ─────────────────────────────────────────────────────────── */
+/* ── Message Bubbles — Native WhatsApp Grade ──────────────────────────── */
 .bubble {
   padding: 6px 10px 8px 10px;
   font-size: 14.2px;
@@ -67,38 +68,60 @@ html, body {
   word-break: break-word;
   position: relative;
 }
-/* sent — WhatsApp native green, top-right tail cut */
+
 .bubble-mine {
   background: #005c4b;
   border-radius: 8px 0 8px 8px;
   color: #e9edef;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  box-shadow: 0 1px 0.5px rgba(11,20,26,0.13);
+  padding: 6px 9px 8px 9px;
+  position: relative;
 }
-/* received — dark panel, top-left tail cut */
+
+.bubble-mine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -8px;
+  width: 8px;
+  height: 13px;
+  background: radial-gradient(circle at top right, transparent 0, transparent 69%, #005c4b 71%);
+}
+
 .bubble-theirs {
   background: #202c33;
   border-radius: 0 8px 8px 8px;
   color: #e9edef;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  box-shadow: 0 1px 0.5px rgba(11,20,26,0.13);
+  padding: 6px 9px 8px 9px;
+  position: relative;
 }
-.bubble-mine   { border-radius: 8px 0 8px 8px !important; }
-.bubble-theirs { border-radius: 0 8px 8px 8px !important; }
 
-/* ── Chat row (sidebar list items) ──────────────────────────────────────────── */
+.bubble-theirs::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 8px;
+  height: 13px;
+  background: radial-gradient(circle at top left, transparent 0, transparent 69%, #202c33 71%);
+}
+
+/* ── Chat Row (Sidebar List) — WhatsApp Exact ────────────────────────── */
 .chat-row {
   display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 10px 16px;
+  gap: 12px;
+  padding: 8px 13px 8px 13px;
   cursor: pointer;
-  transition: background 0.12s;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.1s ease;
   position: relative;
 }
-.chat-row:hover  { background: rgba(255,255,255,0.04); }
+.chat-row:hover  { background: rgba(255,255,255,0.035); }
 .chat-row.active { background: #2a3942; }
+.chat-row + .chat-row { border-top: 1px solid rgba(255,255,255,0.03); }
 
-/* ── Icon button ─────────────────────────────────────────────────────────────── */
+/* ── Icon Button ──────────────────────────────────────────────────────── */
 .icon-btn {
   display: inline-flex;
   align-items: center;
@@ -113,9 +136,9 @@ html, body {
 }
 .icon-btn:hover  { color: #e9edef; background: rgba(255,255,255,0.07); }
 .icon-btn:active { transform: scale(0.92); }
-.icon-btn.active { color: #00a884; background: rgba(0,168,132,0.12); }
+.icon-btn.active { color: #00a884; }
 
-/* ── Input field ─────────────────────────────────────────────────────────────── */
+/* ── Input Field ──────────────────────────────────────────────────────── */
 .input {
   background: rgba(32,44,51,0.8);
   border: 1.5px solid rgba(255,255,255,0.08);
@@ -131,32 +154,33 @@ html, body {
 .input:focus { border-color: rgba(0,168,132,0.5); box-shadow: 0 0 0 3px rgba(0,168,132,0.08); }
 .input::placeholder { color: var(--text-muted); }
 
-/* ── Message bar pill ────────────────────────────────────────────────────────── */
+/* ── Message Bar Pill ─────────────────────────────────────────────────── */
 .input-pill-glass {
   background: #2a3942;
   border: none;
+  border-radius: 8px;
 }
 
-/* ── Sidebar panel ───────────────────────────────────────────────────────────── */
+/* ── Sidebar Panel ────────────────────────────────────────────────────── */
 .sidebar-glass {
   background: #111b21;
   border-right: 1px solid rgba(255,255,255,0.05);
 }
 
-/* ── Header bar ──────────────────────────────────────────────────────────────── */
+/* ── Header Bar ───────────────────────────────────────────────────────── */
 .header-glass {
   background: #202c33;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-/* ── Unread badge ────────────────────────────────────────────────────────────── */
+/* ── Unread Badge ─────────────────────────────────────────────────────── */
 .unread-badge {
   min-width: 20px;
   height: 20px;
   padding: 0 5px;
   border-radius: 99px;
   background: #00a884;
-  color: #111b21;
+  color: #fff;
   font-size: 11px;
   font-weight: 700;
   display: flex;
@@ -164,24 +188,23 @@ html, body {
   justify-content: center;
 }
 
-/* ── Dropdown menu ───────────────────────────────────────────────────────────── */
+/* ── Dropdown Menu ────────────────────────────────────────────────────── */
 .dropdown-menu {
   position: absolute;
-  min-width: 200px;
-  border-radius: 6px;
+  min-width: 210px;
+  border-radius: 4px;
   background: #233138;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
   z-index: 50;
-  padding: 4px 0;
+  padding: 6px 0;
   overflow: hidden;
 }
 .dropdown-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  font-size: 14px;
+  gap: 14px;
+  padding: 11px 20px;
+  font-size: 14.5px;
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -192,17 +215,17 @@ html, body {
   font-family: inherit;
 }
 .dropdown-item:hover { background: rgba(255,255,255,0.06); }
-.dropdown-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0; }
+.dropdown-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 5px 0; }
 
-/* ── Modal overlay ───────────────────────────────────────────────────────────── */
+/* ── Modal ────────────────────────────────────────────────────────────── */
 .modal-glass {
-  background: #1f2c33;
+  background: #2a3942;
   border: 1px solid rgba(255,255,255,0.07);
   box-shadow: 0 24px 60px rgba(0,0,0,0.8);
   border-radius: var(--radius-2xl);
 }
 
-/* ── Glass card ──────────────────────────────────────────────────────────────── */
+/* ── Glass Card ───────────────────────────────────────────────────────── */
 .glass-card {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.07);
@@ -210,34 +233,33 @@ html, body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
-/* ── Context menu ────────────────────────────────────────────────────────────── */
+/* ── Context Menu ─────────────────────────────────────────────────────── */
 .ctx-menu {
   position: fixed;
   z-index: 100;
-  border-radius: 6px;
+  border-radius: 4px;
   background: #233138;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.7);
   padding: 4px 0;
-  min-width: 180px;
+  min-width: 190px;
   animation: animate-dropdown 0.12s ease;
 }
 
-/* ── Profile/Contact panel ───────────────────────────────────────────────────── */
+/* ── Profile Panel ────────────────────────────────────────────────────── */
 .panel-glass {
   background: #111b21;
   border-left: 1px solid rgba(255,255,255,0.06);
 }
 
-/* ── Skeleton loading ────────────────────────────────────────────────────────── */
+/* ── Skeleton Loading ─────────────────────────────────────────────────── */
 .skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
+  animation: shimmer 1.6s ease-in-out infinite;
   border-radius: 8px;
 }
 
-/* ── Date divider ────────────────────────────────────────────────────────────── */
+/* ── Date Divider ─────────────────────────────────────────────────────── */
 .date-divider {
   display: flex; align-items: center; justify-content: center;
   margin: 14px 0;
@@ -251,13 +273,13 @@ html, body {
   border-radius: 99px;
 }
 
-/* ── Pinned banner ───────────────────────────────────────────────────────────── */
+/* ── Pinned Banner ────────────────────────────────────────────────────── */
 .pinned-glass {
-  background: rgba(0,168,132,0.06);
-  border-bottom: 1px solid rgba(0,168,132,0.12);
+  background: rgba(0,168,132,0.05);
+  border-bottom: 1px solid rgba(0,168,132,0.10);
 }
 
-/* ── Filter pill ─────────────────────────────────────────────────────────────── */
+/* ── Filter Pill ──────────────────────────────────────────────────────── */
 .filter-pill {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 5px 14px;
@@ -265,32 +287,32 @@ html, body {
   font-size: 13px; font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
-  background: #2a3942;
+  background: #202c33;
   color: #8696a0;
   white-space: nowrap;
   font-family: inherit;
   border: none;
 }
 .filter-pill.active { background: rgba(0,168,132,0.18); color: #00a884; }
-.filter-pill:hover:not(.active) { background: rgba(255,255,255,0.07); }
+.filter-pill:hover:not(.active) { background: rgba(255,255,255,0.06); }
 
-/* ── Auth container ──────────────────────────────────────────────────────────── */
+/* ── Premium Auth Container ───────────────────────────────────────────── */
 .auth-container {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
 }
 
-/* ── Safe area ───────────────────────────────────────────────────────────────── */
+/* ── Safe Area ────────────────────────────────────────────────────────── */
 .safe-bottom { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
 
-/* ── Section header ──────────────────────────────────────────────────────────── */
+/* ── Section Header ───────────────────────────────────────────────────── */
 .section-header {
   padding: 6px 16px; font-size: 11px; font-weight: 700;
   letter-spacing: 0.08em; text-transform: uppercase; color: #8696a0;
   background: #111b21; position: sticky; top: 0; z-index: 10;
 }
 
-/* ── Pill buttons ────────────────────────────────────────────────────────────── */
+/* ── Pill Buttons ─────────────────────────────────────────────────────── */
 .pill-btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 9px 20px; border-radius: 99px;
@@ -299,16 +321,44 @@ html, body {
 }
 .pill-btn:hover  { filter: brightness(1.1); }
 .pill-btn:active { transform: scale(0.97); }
-.pill-btn-primary { background: #00a884; color: #111b21; box-shadow: 0 2px 12px rgba(0,168,132,0.3); }
+.pill-btn-primary { background: #00a884; color: #fff; }
 .pill-btn-secondary { background: rgba(255,255,255,0.06); color: #8696a0; border: 1px solid rgba(255,255,255,0.08); }
 
-/* ── Bottom nav glass (legacy, kept for compat) ──────────────────────────────── */
+/* ── Bottom Nav Glass ─────────────────────────────────────────────────── */
 .bottom-nav-glass {
   background: #202c33;
   border-top: 1px solid rgba(255,255,255,0.05);
 }
 
-/* ─── Animations ─────────────────────────────────────────────────────────────── */
+/* ── LeftRail Styles ──────────────────────────────────────────────────── */
+.left-rail-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #aebac1;
+  transition: color 0.15s, background 0.15s;
+}
+.left-rail-btn:hover { background: rgba(255,255,255,0.06); color: #e9edef; }
+.left-rail-btn.active { color: #e9edef; }
+.left-rail-btn .active-indicator {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: #00a884;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ───────── Animations ────────────────────────────────────────────────── */
 @keyframes animate-dropdown {
   from { opacity: 0; transform: scale(0.96) translateY(-4px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
@@ -316,21 +366,21 @@ html, body {
 .animate-dropdown { animation: animate-dropdown 0.12s ease; }
 
 @keyframes animate-fade-in {
-  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  from { opacity: 0; transform: scale(0.97) translateY(-4px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 .animate-fade-in { animation: animate-fade-in 0.15s ease; }
 
 @keyframes msg-in-mine {
-  from { opacity: 0; transform: translateX(12px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateX(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
 }
 @keyframes msg-in-theirs {
-  from { opacity: 0; transform: translateX(-12px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateX(-10px) scale(0.98); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
 }
-.msg-enter-mine   { animation: msg-in-mine   0.2s ease; }
-.msg-enter-theirs { animation: msg-in-theirs 0.2s ease; }
+.msg-enter-mine   { animation: msg-in-mine   0.18s ease; }
+.msg-enter-theirs { animation: msg-in-theirs 0.18s ease; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
@@ -339,8 +389,8 @@ html, body {
 .fade-up { animation: fadeUp 0.18s ease; }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0,168,132, 0.25); }
-  50%       { box-shadow: 0 0 0 6px transparent; }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,168,132,0.3); }
+  50%       { box-shadow: 0 0 0 5px transparent; }
 }
 .pulse-online { animation: pulse-glow 2.5s ease-in-out infinite; }
 
@@ -365,12 +415,75 @@ html, body {
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-6px); }
+  50%       { transform: translateY(-5px); }
 }
 .float { animation: float 4s ease-in-out infinite; }
 
-/* ── Responsive ──────────────────────────────────────────────────────────────── */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide-in-right { animation: slide-in-right 0.25s ease; }
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide-in-left { animation: slide-in-left 0.25s ease; }
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.scale-in { animation: scale-in 0.2s ease; }
+
+@keyframes aurora {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Premium Glow Effects ─────────────────────────────────────────────── */
+.glow-accent {
+  box-shadow: 0 0 20px rgba(0,168,132,0.2), 0 0 40px rgba(0,168,132,0.1);
+}
+.glow-accent:hover {
+  box-shadow: 0 0 24px rgba(0,168,132,0.3), 0 0 48px rgba(0,168,132,0.15);
+}
+
+/* ── WhatsApp Tick Colors ─────────────────────────────────────────────── */
+.tick-sent    { color: #8696a0; }
+.tick-read    { color: #53bdeb; }
+
+/* ── Typing Indicator ─────────────────────────────────────────────────── */
+.typing-bubble {
+  background: #202c33;
+  border-radius: 0 8px 8px 8px;
+  padding: 12px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Premium Input Focus ──────────────────────────────────────────────── */
+.premium-input {
+  background: #2a3942;
+  border: none;
+  color: #e9edef;
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s;
+  line-height: 1.5;
+}
+.premium-input::placeholder { color: #667781; }
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .dropdown-menu { min-width: 160px; }
   html { font-size: 14px; }
+  .bubble-mine::before, .bubble-theirs::before { display: none; }
 }
+
+/* ── Selection ────────────────────────────────────────────────────────── */
+::selection { background: rgba(0,168,132,0.25); color: inherit; }

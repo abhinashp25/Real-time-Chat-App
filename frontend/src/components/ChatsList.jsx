@@ -26,7 +26,7 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onShowNewGroup,
   const {
     getMyChatPartners, chats, isUsersLoading, setSelectedUser,
     selectedUser, unreadCounts, activeFilter, setActiveFilter, sidebarSearch, setSidebarSearch,
-    favourites = [], toggleFavourite
+    favourites = [], toggleFavourite, setActiveTab
   } = useChatStore();
   const { groups, selectedGroup } = useGroupStore();
   const { onlineUsers, logout } = useAuthStore();
@@ -86,8 +86,8 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onShowNewGroup,
         <h1 className="text-[22px] font-bold text-[#e9edef]">Chats</h1>
         <div className="flex items-center gap-3 text-[#aebac1]">
           <button 
-            onClick={() => toast("Start new chat", { icon: "💬" })}
-            className="hover:bg-white/5 p-2 rounded-full transition-colors flex items-center justify-center">
+            onClick={() => setActiveTab("contacts")}
+            className="hover:bg-white/5 p-2 rounded-full transition-colors flex items-center justify-center" title="New Chat">
             <MessageSquarePlus size={20} strokeWidth={2} />
           </button>
           

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeftIcon, PhoneIcon, VideoIcon, MoreVerticalIcon,
   SearchIcon, XIcon, ArchiveIcon, UserIcon, MessageSquareXIcon,
-  StarIcon, TimerIcon, ClockIcon,
+  StarIcon, TimerIcon, ClockIcon, Sparkles,
 } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -14,7 +14,7 @@ import DisappearTimerPicker from "./DisappearTimerPicker";
 import ScheduledList      from "./ScheduledList";
 import toast from "react-hot-toast";
 
-export default function ChatHeader() {
+export default function ChatHeader({ onAISummary }) {
   const {
     selectedUser, setSelectedUser, setSearchQuery, searchQuery,
     typingUsers, getMyChatPartners, lastSeenMap, clearChat,
@@ -148,10 +148,14 @@ export default function ChatHeader() {
           </div>
 
           <button className="icon-btn" title="Voice call" onClick={() => startCall(selectedUser._id, false)}>
-            <PhoneIcon className="w-[17px] h-[17px]" />
+            <PhoneIcon className="w-[18px] h-[18px]" />
           </button>
           <button className="icon-btn" title="Video call" onClick={() => startCall(selectedUser._id, true)}>
-            <VideoIcon className="w-[17px] h-[17px]" />
+            <VideoIcon className="w-[18px] h-[18px]" />
+          </button>
+          <button className="icon-btn" title="AI Conversation Summary" onClick={onAISummary}
+            style={{ color: '#00a884' }}>
+            <Sparkles className="w-[17px] h-[17px]" />
           </button>
 
           <div className="relative" ref={menuRef}>

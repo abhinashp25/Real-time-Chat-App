@@ -1,75 +1,121 @@
-import { FileText, UserPlus } from "lucide-react";
+import { FileText, UserPlus, Sparkles, Shield } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import AddContactModal from "./AddContactModal";
-import toast from "react-hot-toast";
 
 export default function NativeEmptyState({ onActivateMetaAI }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <div
-      className="flex flex-col items-center justify-center h-full gap-6"
+      className="flex flex-col items-center justify-center h-full gap-8 select-none"
       style={{ background: "#222e35" }}
     >
-      {/* Lock / encryption badge */}
-      <div className="flex flex-col items-center gap-5 max-w-md text-center px-8">
-        <div className="w-[280px] h-[280px] rounded-full flex items-center justify-center mb-2"
-          style={{ background: "rgba(0,168,132,0.06)", border: "1px solid rgba(0,168,132,0.1)" }}>
-          {/* WhatsApp-style illustration placeholder */}
-          <svg viewBox="0 0 200 200" className="w-48 h-48 opacity-40" fill="none">
-            <circle cx="100" cy="100" r="80" stroke="#00a884" strokeWidth="2" strokeDasharray="6 4"/>
-            <path d="M60 100 Q100 60 140 100 Q100 140 60 100Z" fill="#00a884" opacity="0.3"/>
-            <circle cx="100" cy="100" r="20" fill="#00a884" opacity="0.5"/>
-            <path d="M88 100 L96 108 L114 92" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+      {/* Central illustration */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.85, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, type: "spring", stiffness: 150 }}
+        className="flex flex-col items-center gap-5 max-w-sm text-center px-8"
+      >
+        {/* Logo circle */}
+        <div className="relative">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="w-[200px] h-[200px] rounded-full"
+            style={{
+              background: "conic-gradient(from 0deg, transparent 60%, rgba(0,168,132,0.15) 100%)",
+              border: "1px solid rgba(0,168,132,0.08)",
+            }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-[160px] h-[160px] rounded-full flex items-center justify-center"
+              style={{ background: "rgba(0,168,132,0.06)" }}>
+              {/* Chat icon illustration */}
+              <svg viewBox="0 0 120 120" width="90" height="90" fill="none">
+                <circle cx="60" cy="60" r="50" stroke="#00a884" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.3"/>
+                <rect x="22" y="35" width="76" height="48" rx="12" fill="#005c4b" opacity="0.6"/>
+                <rect x="28" y="42" width="40" height="6" rx="3" fill="#00a884" opacity="0.7"/>
+                <rect x="28" y="54" width="52" height="5" rx="2.5" fill="#8696a0" opacity="0.4"/>
+                <rect x="28" y="64" width="32" height="5" rx="2.5" fill="#8696a0" opacity="0.3"/>
+                <circle cx="84" cy="75" r="14" fill="#202c33"/>
+                <path d="M79 75l3.5 3.5L90 68" stroke="#00a884" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
         </div>
 
-        <h2 className="text-[22px] font-light" style={{ color: "#e9edef" }}>
-          Chatify for Desktop
-        </h2>
-        <p className="text-[14px] leading-relaxed" style={{ color: "#8696a0" }}>
-          Send and receive messages without keeping your phone online.<br/>
-          Use Chatify on up to 4 linked devices and 1 phone simultaneously.
-        </p>
+        <div>
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-[24px] font-light mb-2"
+            style={{ color: "#e9edef" }}
+          >
+            Chatify for Desktop
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-[14px] leading-relaxed"
+            style={{ color: "#8696a0" }}
+          >
+            Send and receive messages without keeping your phone online.
+            Use Chatify on up to 4 linked devices and 1 phone simultaneously.
+          </motion.p>
+        </div>
 
-        {/* Encrypted badge */}
-        <div className="flex items-center gap-2 mt-2">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0" fill="#8696a0">
-            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4.18L19 8.3V11c0 3.9-2.65 7.56-7 8.93-4.35-1.37-7-5.03-7-8.93V8.3L12 5.18z"/>
-            <path d="M10 14.7l-2.7-2.7-1.4 1.4 4.1 4.1 7.1-7.1-1.4-1.4z"/>
-          </svg>
+        {/* Encryption badge */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-full"
+          style={{ background: "rgba(134,150,160,0.06)", border: "1px solid rgba(134,150,160,0.12)" }}
+        >
+          <Shield size={14} style={{ color: "#8696a0" }} strokeWidth={1.5} />
           <span className="text-[12.5px]" style={{ color: "#8696a0" }}>
             Your personal messages are end-to-end encrypted
           </span>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Action tiles */}
-      <div className="flex items-center gap-4 mt-2">
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.4 }}
+        className="flex items-center gap-4"
+      >
         <ActionTile
-          icon={<FileText size={22} style={{ color: "#00a884" }} />}
+          icon={<FileText size={21} style={{ color: "#aebac1" }} strokeWidth={1.5} />}
           label="Send document"
-          onClick={() => toast("Please start or select a chat first to attach documents.", { icon: "📄" })}
+          onClick={() => {}}
         />
         <ActionTile
-          icon={<UserPlus size={22} style={{ color: "#00a884" }} />}
+          icon={<UserPlus size={21} style={{ color: "#aebac1" }} strokeWidth={1.5} />}
           label="Add contact"
           onClick={() => setModalOpen(true)}
         />
         <ActionTile
           icon={
-            <div className="w-6 h-6 rounded-full" style={{
+            <div className="w-[22px] h-[22px] rounded-full" style={{
               background: "conic-gradient(from 0deg, #00a884, #4fd1c5, #667eea, #00a884)",
               animation: "spin-ring 3s linear infinite",
-              padding: 2.5,
+              padding: 2,
             }}>
-              <div className="w-full h-full rounded-full" style={{ background: "#2a3942" }} />
+              <div className="w-full h-full rounded-full flex items-center justify-center" style={{ background: "#2a3942" }}>
+                <Sparkles size={9} style={{ color: "#00a884" }} />
+              </div>
             </div>
           }
-          label="Ask Chatify AI"
+          label="Chatify AI"
           onClick={onActivateMetaAI}
         />
-      </div>
+      </motion.div>
       <AddContactModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
@@ -77,23 +123,25 @@ export default function NativeEmptyState({ onActivateMetaAI }) {
 
 function ActionTile({ icon, label, onClick }) {
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.04, y: -2 }}
+      whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className="flex flex-col items-center gap-3 px-5 py-5 rounded-2xl transition-all hover:scale-105 active:scale-95"
+      className="flex flex-col items-center gap-3 px-5 py-5 rounded-2xl transition-colors"
       style={{
         background: "#2a3942",
-        border: "1px solid rgba(255,255,255,0.06)",
+        border: "1px solid rgba(255,255,255,0.05)",
         minWidth: 110,
         color: "#e9edef",
       }}
     >
       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-        style={{ background: "rgba(0,168,132,0.1)" }}>
+        style={{ background: "rgba(255,255,255,0.05)" }}>
         {icon}
       </div>
-      <span className="text-[13px] font-medium text-center leading-tight" style={{ color: "#d1d7db" }}>
+      <span className="text-[12.5px] font-medium text-center leading-tight" style={{ color: "#aebac1" }}>
         {label}
       </span>
-    </button>
+    </motion.button>
   );
 }
