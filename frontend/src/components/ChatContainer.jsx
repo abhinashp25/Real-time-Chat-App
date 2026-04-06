@@ -147,6 +147,7 @@ export default function ChatContainer() {
   const [showScrollBtn, setShowScrollBtn]  = useState(false);
   const [showAISummary, setShowAISummary]  = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     getMessagesByUserId(selectedUser._id);
     subscribeToMessages();
@@ -164,6 +165,7 @@ export default function ChatContainer() {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!showScrollBtn) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -522,7 +524,7 @@ function highlightMatch(text, query) {
   return (<>{text.slice(0, idx)}<mark className="bg-yellow-400/40 text-inherit rounded px-0.5">{text.slice(idx, idx + query.length)}</mark>{text.slice(idx + query.length)}</>);
 }
 
-function ImageBubble({ src, isMine }) {
+function ImageBubble({ src }) {
   const [opened, setOpened] = useState(false);
   const [lightbox, setLightbox] = useState(false);
 

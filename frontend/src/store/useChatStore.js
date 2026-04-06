@@ -136,7 +136,9 @@ export const useChatStore = create((set, get) => ({
         messages: get().messages.map((m) => m.senderId === senderId && !m.isRead ? { ...m, isRead: true } : m),
         unreadCounts: { ...get().unreadCounts, [senderId]: 0 },
       });
-    } catch {}
+    } catch (e) {
+      console.warn("Failed to mark read:", e);
+    }
   },
 
   toggleReaction: async (messageId, emoji) => {

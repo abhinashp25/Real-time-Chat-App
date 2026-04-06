@@ -19,9 +19,10 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
   const isOnline = onlineUsers.includes(user._id);
   const lastSeen = lastSeenMap[user._id] || user.lastSeen;
 
+  const [now] = useState(() => Date.now());
   function lastSeenLabel(iso) {
     if (!iso) return "last seen a while ago";
-    const d = new Date(iso); const diff = Date.now() - d;
+    const d = new Date(iso); const diff = now - d;
     const mins = Math.floor(diff / 60000);
     if (mins < 2) return "last seen just now";
     if (mins < 60) return `last seen ${mins} min ago`;

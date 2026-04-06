@@ -52,9 +52,7 @@ export const getScheduledMessages = async (req, res) => {
       .populate("receiverId", "fullName profilePic")
       .sort({ scheduledAt: 1 });
     res.json(msgs);
-  } catch (e) {
-    res.status(500).json({ message: "Server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const cancelScheduledMessage = async (req, res) => {
@@ -67,9 +65,7 @@ export const cancelScheduledMessage = async (req, res) => {
     msg.status = "cancelled";
     await msg.save();
     res.json({ message: "Cancelled." });
-  } catch (e) {
-    res.status(500).json({ message: "Server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 // Called once from server.js after DB connects.

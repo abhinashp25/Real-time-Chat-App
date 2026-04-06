@@ -34,6 +34,7 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onShowNewGroup,
   const [showMenu, setShowMenu] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { getMyChatPartners(); }, []);
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;

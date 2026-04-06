@@ -13,10 +13,10 @@ export default function AddContactModal({ isOpen, onClose }) {
 
   useEffect(() => {
     if (isOpen) {
-      setLoading(true);
       axiosInstance.get("/messages/contacts").then(res => {
         setAllContacts(res.data);
-      }).catch(e => {
+      }).catch((err) => {
+        console.error(err);
         toast.error("Failed to load contacts list");
       }).finally(() => setLoading(false));
     }

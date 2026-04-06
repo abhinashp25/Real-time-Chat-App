@@ -8,7 +8,7 @@ export const getAllContacts = async (req, res) => {
   try {
     const users = await User.find({ _id: { $ne: req.user._id } }).select("-password");
     res.json(users);
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const getChatPartners = async (req, res) => {
@@ -101,9 +101,7 @@ export const getMessagesByUserId = async (req, res) => {
     }).sort({ createdAt: 1 });
 
     res.json(messages);
-  } catch (e) {
-    res.status(500).json({ error: "Internal server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ error: "Internal server error" }); }
 };
 
 export const sendMessage = async (req, res) => {
@@ -155,7 +153,7 @@ export const sendMessage = async (req, res) => {
         const senderSocket   = getReceiverSocketId(senderId.toString());
         if (receiverSocket) io.to(receiverSocket).emit("messageLinkPreview", updatedMsg);
         if (senderSocket)   io.to(senderSocket).emit("messageLinkPreview", updatedMsg);
-      }).catch(() => {}); // silently ignore preview failures
+      }).catch((err) => { console.error("Link preview error:", err.message); }); 
     }
 
     const receiverSocketId = getReceiverSocketId(receiverId);
@@ -181,7 +179,7 @@ export const markMessagesAsRead = async (req, res) => {
       if (senderSocketId) io.to(senderSocketId).emit("messagesRead", { by: receiverId.toString() });
     }
     res.json({ count: result.modifiedCount });
-  } catch (e) { res.status(500).json({ error: "Internal server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ error: "Internal server error" }); }
 };
 
 export const toggleReaction = async (req, res) => {
@@ -214,7 +212,7 @@ export const toggleReaction = async (req, res) => {
     if (s2) io.to(s2).emit("messageReaction", payload);
 
     res.json(message);
-  } catch (e) { res.status(500).json({ error: "Internal server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ error: "Internal server error" }); }
 };
 
 export const deleteMessage = async (req, res) => {
@@ -243,7 +241,7 @@ export const deleteMessage = async (req, res) => {
     if (otherSocketId) io.to(otherSocketId).emit("messageDeleted", { messageId: message._id.toString(), deletedForAll: deleteForEveryone });
 
     res.json({ message: "Deleted.", deletedForAll: deleteForEveryone });
-  } catch (e) { res.status(500).json({ error: "Internal server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ error: "Internal server error" }); }
 };
 
 export const toggleStarMessage = async (req, res) => {
@@ -259,7 +257,7 @@ export const toggleStarMessage = async (req, res) => {
     await message.save();
 
     res.json({ starred: !isStarred, messageId });
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const getStarredMessages = async (req, res) => {
@@ -267,7 +265,7 @@ export const getStarredMessages = async (req, res) => {
     const msgs = await Message.find({ starredBy: req.user._id, isDeletedForAll: false })
       .sort({ createdAt: -1 }).limit(100);
     res.json(msgs);
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const togglePinMessage = async (req, res) => {
@@ -287,7 +285,7 @@ export const togglePinMessage = async (req, res) => {
     if (otherSocket) io.to(otherSocket).emit("messagePinned", { messageId, isPinned: message.isPinned });
 
     res.json({ isPinned: message.isPinned, messageId });
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const toggleArchiveChat = async (req, res) => {
@@ -300,14 +298,14 @@ export const toggleArchiveChat = async (req, res) => {
     else user.archivedChats.push(partnerId);
     await user.save();
     res.json({ archived: !isArchived, partnerId });
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const getArchivedChats = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate("archivedChats", "-password");
     res.json(user.archivedChats || []);
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const clearChat = async (req, res) => {
@@ -325,7 +323,5 @@ export const clearChat = async (req, res) => {
       { $push: { deletedFor: myId } }
     );
     res.json({ message: "Chat cleared." });
-  } catch (e) {
-    res.status(500).json({ message: "Server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };

@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 export default function ChatHeader({ onAISummary }) {
   const {
     selectedUser, setSelectedUser, setSearchQuery, searchQuery,
-    typingUsers, getMyChatPartners, lastSeenMap, clearChat,
+    typingUsers, lastSeenMap, clearChat,
     markChatArchived, disappearSeconds, setDisappearSeconds,
   } = useChatStore();
   const { onlineUsers } = useAuthStore();
@@ -29,6 +29,7 @@ export default function ChatHeader({ onAISummary }) {
   const [showContactInfo,  setShowContactInfo]   = useState(false);
   const [showDisappear,    setShowDisappear]     = useState(false);
   const [showScheduledList,setShowScheduledList] = useState(false);
+  const [now] = useState(Date.now());
   const menuRef   = useRef(null);
   const searchRef = useRef(null);
 
@@ -38,7 +39,7 @@ export default function ChatHeader({ onAISummary }) {
 
   function lastSeenLabel(iso) {
     if (!iso) return "last seen a while ago";
-    const d = new Date(iso); const diff = Date.now() - d;
+    const d = new Date(iso); const diff = now - d;
     const mins = Math.floor(diff / 60000);
     if (mins < 2)  return "last seen just now";
     if (mins < 60) return `last seen ${mins} min ago`;
@@ -56,6 +57,7 @@ export default function ChatHeader({ onAISummary }) {
   useEffect(() => {
     if (searchOpen) setTimeout(() => searchRef.current?.focus(), 50);
     else setSearchQuery("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchOpen]);
 
   if (showStarred) {

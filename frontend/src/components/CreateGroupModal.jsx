@@ -19,6 +19,7 @@ export default function CreateGroupModal({ onClose }) {
   const [loading, setLoading]     = useState(false);
   const fileRef = useRef(null);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { getAllContacts(); }, []);
 
   const filtered = allContacts.filter(

@@ -44,9 +44,7 @@ export const getMyGroups = async (req, res) => {
       .populate("members", "-password")
       .sort({ lastMessageAt: -1 });
     res.json(groups);
-  } catch (e) {
-    res.status(500).json({ message: "Server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const getGroupMessages = async (req, res) => {
@@ -64,9 +62,7 @@ export const getGroupMessages = async (req, res) => {
     }).populate("senderId", "fullName profilePic");
 
     res.json(messages);
-  } catch (e) {
-    res.status(500).json({ message: "Server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const sendGroupMessage = async (req, res) => {
@@ -131,9 +127,7 @@ export const markGroupMessagesRead = async (req, res) => {
     });
 
     res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ message: "Server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const getMessageReadBy = async (req, res) => {
@@ -152,9 +146,7 @@ export const getMessageReadBy = async (req, res) => {
       readBy: msg.readBy,
       memberCount: group.members.length,
     });
-  } catch (e) {
-    res.status(500).json({ message: "Server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const addMember = async (req, res) => {
@@ -171,7 +163,7 @@ export const addMember = async (req, res) => {
     const populated = await Group.findById(groupId).populate("members", "-password");
     io.to(`group:${groupId}`).emit("groupUpdated", populated);
     res.json(populated);
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const removeMember = async (req, res) => {
@@ -185,7 +177,7 @@ export const removeMember = async (req, res) => {
     const populated = await Group.findById(groupId).populate("members", "-password");
     io.to(`group:${groupId}`).emit("groupUpdated", populated);
     res.json(populated);
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
 
 export const leaveGroup = async (req, res) => {
@@ -204,5 +196,5 @@ export const leaveGroup = async (req, res) => {
     const populated = await Group.findById(groupId).populate("members", "-password");
     io.to(`group:${groupId}`).emit("groupUpdated", populated);
     res.json({ message: "Left group." });
-  } catch (e) { res.status(500).json({ message: "Server error" }); }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };

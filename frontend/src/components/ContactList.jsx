@@ -36,6 +36,7 @@ export default function ContactList() {
   } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { getAllContacts(); }, []);
   if (isUsersLoading) return <UsersLoadingSkeleton />;
 

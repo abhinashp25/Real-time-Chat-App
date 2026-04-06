@@ -29,10 +29,10 @@ function getRecent() {
 }
 function addRecent(emoji) {
   const list = [emoji, ...getRecent().filter(e => e !== emoji)].slice(0, 32);
-  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch {}
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ }
 }
 
-export default function EmojiPicker({ onSelect, onClose }) {
+export default function EmojiPicker({ onSelect }) {
   const [category, setCategory] = useState("smileys");
   const [search, setSearch] = useState("");
   const [recent, setRecent] = useState(getRecent);

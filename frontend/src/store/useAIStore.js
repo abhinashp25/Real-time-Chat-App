@@ -10,9 +10,6 @@ export const useAIStore = create((set, get) => ({
 
   clearAI: () => set({ aiMessages: [], smartReplies: [] }),
 
-  rateLimitUntil: 0,    
-  retryAfter: 0,       
-
   sendAIMessage: async (userText) => {
     if (!userText.trim()) return;
 

@@ -18,6 +18,7 @@ export default function MessageInput({ onTextChange }) {
   const [emojiOpen, setEmojiOpen]   = useState(false);
   const [voiceMode, setVoiceMode]   = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const fileRef   = useRef(null);
   const inputRef  = useRef(null);
   const timerRef  = useRef(null);
@@ -27,7 +28,7 @@ export default function MessageInput({ onTextChange }) {
 
   const {
     sendMessage, isSoundEnabled, emitTyping, emitStopTyping,
-    pendingInput, clearPendingInput, replyingTo, clearReply,
+    pendingInput, clearPendingInput, replyingTo,
     selectedUser, disappearSeconds,
   } = useChatStore();
 
@@ -38,6 +39,7 @@ export default function MessageInput({ onTextChange }) {
       clearPendingInput();
       inputRef.current?.focus();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingInput]);
 
   const handleTyping = useCallback((val) => {
@@ -55,6 +57,7 @@ export default function MessageInput({ onTextChange }) {
     }
     
     if (recognitionRef.current) {
+      setIsRecording(false);
       recognitionRef.current.stop();
       recognitionRef.current = null;
       return;
@@ -77,15 +80,18 @@ export default function MessageInput({ onTextChange }) {
     };
 
     recognition.onerror = () => {
+      setIsRecording(false);
       recognitionRef.current = null;
       toast.error("Voice typing error or interrupted");
     };
 
     recognition.onend = () => {
+      setIsRecording(false);
       recognitionRef.current = null;
     };
 
     recognition.start();
+    setIsRecording(true);
     recognitionRef.current = recognition;
     toast.success("Voice typing started. Speak now...", { icon: "🎤" });
   };
@@ -273,8 +279,8 @@ export default function MessageInput({ onTextChange }) {
                 className="flex-1 bg-transparent border-none focus:outline-none text-[14px] leading-[1.4]"
                 style={{ color: "#e9edef", fontFamily: "inherit", minWidth: 0 }}
               />
-              <button type="button" onClick={toggleVoiceTyping} className="flex-shrink-0 ml-2" style={{ color: recognitionRef.current ? "#00a884" : "#8696a0" }}>
-                {recognitionRef.current ? <Mic size={20} className="animate-pulse" /> : <MicOff size={20} />}
+              <button type="button" onClick={toggleVoiceTyping} className="flex-shrink-0 ml-2" style={{ color: isRecording ? "#00a884" : "#8696a0" }}>
+                {isRecording ? <Mic size={20} className="animate-pulse" /> : <MicOff size={20} />}
               </button>
               <input type="file" ref={fileRef} onChange={handleFile} className="hidden" />
             </div>

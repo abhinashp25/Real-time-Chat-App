@@ -5,10 +5,10 @@ import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
 
 export default function CallsList() {
-  const { authUser } = useAuthStore();
   const { chats } = useChatStore();
   const { startCall } = useCallStore();
   const [activeCallFilter, setActiveCallFilter] = useState("all");
+  const [now] = useState(() => Date.now());
 
   // Generate realistic-looking call history from existing chat partners
   const callHistory = chats.slice(0, 12).map((c, i) => {
@@ -17,7 +17,7 @@ export default function CallsList() {
     const mins = 2 + ((i * 7) % 43);
     const hoursAgo = 1 + ((i * 5) % 72);
     const isVideo = i % 3 === 0;
-    const date = new Date(Date.now() - hoursAgo * 3600 * 1000);
+    const date = new Date(now - hoursAgo * 3600 * 1000);
 
     return {
       _id: c._id + "-call-" + i,

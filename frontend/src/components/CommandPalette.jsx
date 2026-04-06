@@ -10,13 +10,16 @@ export default function CommandPalette() {
   const inputRef = useRef(null);
 
   const { chats, setSelectedUser } = useChatStore();
-  const { authUser, logout } = useAuthStore();
+  const { logout } = useAuthStore();
 
   useEffect(() => {
     const down = (e) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setOpen((open) => !open);
+        setOpen((prev) => {
+          if (prev) setQuery("");
+          return !prev;
+        });
       }
     };
     document.addEventListener("keydown", down);
@@ -26,14 +29,10 @@ export default function CommandPalette() {
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 10);
-    } else {
-      setQuery("");
     }
   }, [open]);
 
-  const togglePalette = () => {
-    setOpen(!open);
-  }
+  // Remove unused togglePalette
 
   // Filter actions based on query
   const rawActions = [
@@ -89,7 +88,7 @@ export default function CommandPalette() {
                 {filteredActions.length === 0 ? (
                   <p className="p-4 text-center text-sm text-gray-400">No results found.</p>
                 ) : (
-                  filteredActions.map((action, i) => (
+                  filteredActions.map((action) => (
                     <button
                       key={action.id}
                       onClick={action.action}

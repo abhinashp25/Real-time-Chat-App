@@ -12,7 +12,7 @@ export const useStatusStore = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/status");
       set({ statuses: res.data });
-    } catch (error) {
+    } catch (e) {
       toast.error("Failed to load statuses");
     } finally {
       set({ isFetching: false });
@@ -25,7 +25,7 @@ export const useStatusStore = create((set, get) => ({
       const res = await axiosInstance.post("/status", { content, type });
       set({ statuses: [res.data, ...get().statuses] });
       toast.success("Status posted!");
-    } catch (error) {
+    } catch (e) {
       toast.error("Failed to post status");
     } finally {
       set({ isUploading: false });

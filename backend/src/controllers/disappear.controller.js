@@ -45,7 +45,5 @@ export const getDisappearTimer = async (req, res) => {
     const user = await User.findById(req.user._id).select("disappearTimers");
     const seconds = user.disappearTimers?.get(partnerId) || 0;
     res.json({ seconds, partnerId });
-  } catch (e) {
-    res.status(500).json({ message: "Server error" });
-  }
+  } catch (e) { console.error("Error:", e.message); res.status(500).json({ message: "Server error" }); }
 };
