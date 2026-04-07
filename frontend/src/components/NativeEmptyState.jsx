@@ -1,147 +1,79 @@
-import { FileText, UserPlus, Sparkles, Shield } from "lucide-react";
-import { useState } from "react";
 import { motion } from "framer-motion";
-import AddContactModal from "./AddContactModal";
+import { MessageSquarePlus, Zap, Settings2 } from "lucide-react";
 
 export default function NativeEmptyState({ onActivateMetaAI }) {
-  const [modalOpen, setModalOpen] = useState(false);
-
   return (
-    <div
-      className="flex flex-col items-center justify-center h-full gap-8 select-none"
-      style={{ background: "#222e35" }}
-    >
-      {/* Central illustration */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.85, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, type: "spring", stiffness: 150 }}
-        className="flex flex-col items-center gap-5 max-w-sm text-center px-8"
-      >
-        {/* Logo circle */}
-        <div className="relative">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="w-[200px] h-[200px] rounded-full"
-            style={{
-              background: "conic-gradient(from 0deg, transparent 60%, rgba(0,168,132,0.15) 100%)",
-              border: "1px solid rgba(0,168,132,0.08)",
-            }}
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-[160px] h-[160px] rounded-full flex items-center justify-center"
-              style={{ background: "rgba(0,168,132,0.06)" }}>
-              {/* Chat icon illustration */}
-              <svg viewBox="0 0 120 120" width="90" height="90" fill="none">
-                <circle cx="60" cy="60" r="50" stroke="#00a884" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.3"/>
-                <rect x="22" y="35" width="76" height="48" rx="12" fill="#005c4b" opacity="0.6"/>
-                <rect x="28" y="42" width="40" height="6" rx="3" fill="#00a884" opacity="0.7"/>
-                <rect x="28" y="54" width="52" height="5" rx="2.5" fill="#8696a0" opacity="0.4"/>
-                <rect x="28" y="64" width="32" height="5" rx="2.5" fill="#8696a0" opacity="0.3"/>
-                <circle cx="84" cy="75" r="14" fill="#202c33"/>
-                <path d="M79 75l3.5 3.5L90 68" stroke="#00a884" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
-        </div>
+    <div className="flex-1 flex flex-col items-center justify-center bg-[#0a0a0a] text-center px-4 relative overflow-hidden">
+      
+      {/* Background Graphic */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
+        <div className="w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] border-[1px] border-white rounded-full"></div>
+        <div className="absolute w-[60vw] h-[60vw] max-w-[600px] max-h-[600px] border-[1px] border-white rounded-full"></div>
+        <div className="absolute w-[40vw] h-[40vw] max-w-[400px] max-h-[400px] border-[1px] border-white rounded-full"></div>
+      </div>
 
-        <div>
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-[24px] font-light mb-2"
-            style={{ color: "#e9edef" }}
-          >
-            Chatify for Desktop
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-[14px] leading-relaxed"
-            style={{ color: "#8696a0" }}
-          >
-            Send and receive messages without keeping your phone online.
-            Use Chatify on up to 4 linked devices and 1 phone simultaneously.
-          </motion.p>
-        </div>
+      <div className="relative z-10 max-w-[520px] flex flex-col items-center">
+        {/* Minimal Logo Mark */}
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="w-20 h-20 bg-[#111111] border border-[#262626] rounded-2xl flex items-center justify-center mb-8 shadow-[0_8px_30px_rgba(0,0,0,0.5)]"
+        >
+          <img src="/logo.png" alt="Chatify" className="w-10 h-10 object-contain drop-shadow-md brightness-0 invert opacity-90" />
+        </motion.div>
 
-        {/* Encryption badge */}
-        <motion.div
+        {/* Typography */}
+        <motion.h1 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="text-3xl sm:text-4xl font-semibold text-white tracking-tight brand-font mb-4"
+        >
+          Chatify OS
+        </motion.h1>
+        
+        <motion.p 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="text-[15px] leading-[1.6] text-[#a3a3a3] max-w-[380px] font-light"
+        >
+          Experience uncompromised privacy and speed. Select a conversation from the sidebar or start a new connection.
+        </motion.p>
+
+        {/* Quick Actions Array - Replaced legacy buttons with sleek minimal ones */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-12 flex items-center justify-center gap-4 flex-wrap"
+        >
+          <button className="flex items-center gap-3 px-6 py-3 bg-[#111111] border border-[#262626] hover:bg-[#1a1a1a] hover:border-[#333] transition-all rounded-xl text-white text-sm font-medium">
+            <MessageSquarePlus size={18} className="text-[#a3a3a3]" />
+            New Message
+          </button>
+          
+          <button 
+            onClick={onActivateMetaAI}
+            className="flex items-center gap-3 px-6 py-3 bg-white text-black hover:bg-[#e5e5e5] transition-all rounded-xl text-sm font-medium"
+          >
+            <Zap size={18} className="text-black" />
+            Chatify AI
+          </button>
+        </motion.div>
+
+        {/* Bottom Lock / Security Disclaimer */}
+        <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full"
-          style={{ background: "rgba(134,150,160,0.06)", border: "1px solid rgba(134,150,160,0.12)" }}
+          transition={{ duration: 1, delay: 0.5 }}
+          className="absolute bottom-[-80px] flex items-center gap-2 text-[#737373] text-[12px] font-medium tracking-wide"
         >
-          <Shield size={14} style={{ color: "#8696a0" }} strokeWidth={1.5} />
-          <span className="text-[12.5px]" style={{ color: "#8696a0" }}>
-            Your personal messages are end-to-end encrypted
-          </span>
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          END-TO-END ENCRYPTED
         </motion.div>
-      </motion.div>
-
-      {/* Action tiles */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, duration: 0.4 }}
-        className="flex items-center gap-4"
-      >
-        <ActionTile
-          icon={<FileText size={21} style={{ color: "#aebac1" }} strokeWidth={1.5} />}
-          label="Send document"
-          onClick={() => {}}
-        />
-        <ActionTile
-          icon={<UserPlus size={21} style={{ color: "#aebac1" }} strokeWidth={1.5} />}
-          label="Add contact"
-          onClick={() => setModalOpen(true)}
-        />
-        <ActionTile
-          icon={
-            <div className="w-[22px] h-[22px] rounded-full" style={{
-              background: "conic-gradient(from 0deg, #00a884, #4fd1c5, #667eea, #00a884)",
-              animation: "spin-ring 3s linear infinite",
-              padding: 2,
-            }}>
-              <div className="w-full h-full rounded-full flex items-center justify-center" style={{ background: "#2a3942" }}>
-                <Sparkles size={9} style={{ color: "#00a884" }} />
-              </div>
-            </div>
-          }
-          label="Chatify AI"
-          onClick={onActivateMetaAI}
-        />
-      </motion.div>
-      <AddContactModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-    </div>
-  );
-}
-
-function ActionTile({ icon, label, onClick }) {
-  return (
-    <motion.button
-      whileHover={{ scale: 1.04, y: -2 }}
-      whileTap={{ scale: 0.96 }}
-      onClick={onClick}
-      className="flex flex-col items-center gap-3 px-5 py-5 rounded-2xl transition-colors"
-      style={{
-        background: "#2a3942",
-        border: "1px solid rgba(255,255,255,0.05)",
-        minWidth: 110,
-        color: "#e9edef",
-      }}
-    >
-      <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-        style={{ background: "rgba(255,255,255,0.05)" }}>
-        {icon}
       </div>
-      <span className="text-[12.5px] font-medium text-center leading-tight" style={{ color: "#aebac1" }}>
-        {label}
-      </span>
-    </motion.button>
+    </div>
   );
 }

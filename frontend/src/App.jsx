@@ -1,18 +1,20 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { AnimatePresence } from "framer-motion";
 import ChatPage    from './pages/ChatPage';
 import LoginPage   from './pages/LoginPage';
 import SignUpPage  from './pages/SignupPage';
 import { useAuthStore } from "./store/useAuthStore";
 import { useSettingsStore } from "./store/useSettingsStore";
 import PageLoader  from './components/PageLoader';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 import CommandPalette from './components/CommandPalette';
 import CallOverlay from './components/CallOverlay';
 import { useCallStore } from './store/useCallStore';
 
 function App() {
+  const location = useLocation();
   const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
   const { applyStoredTheme } = useSettingsStore();
   useEffect(() => { checkAuth(); applyStoredTheme(); }, [checkAuth]);
@@ -21,18 +23,33 @@ function App() {
     if (authUser) {
       useCallStore.getState().initListeners();
     }
+    
+    const handleOffline = () => toast.error("You are offline. Messages will be queued.", { duration: 4000 });
+    const handleOnline = () => {
+      toast.success("Back online!", { duration: 3000 });
+      import('./store/useChatStore').then(mod => mod.useChatStore.getState().processOfflineQueue());
+    };
+    
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
   }, [authUser]);
 
   if (isCheckingAuth) return <PageLoader />;
 
   return (
-    <div className="app-bg min-h-screen min-h-[100dvh]">
+    <div className="min-h-screen min-h-[100dvh] text-white">
       <SpeedInsights />
-      <Routes>
-        <Route path="/"       element={authUser ? <ChatPage />  : <Navigate to="/login" />} />
-        <Route path="/login"  element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
-      </Routes>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/"       element={authUser ? <ChatPage />  : <Navigate to="/login" />} />
+          <Route path="/login"  element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+          <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
+        </Routes>
+      </AnimatePresence>
       <CommandPalette />
       <CallOverlay />
       <Toaster

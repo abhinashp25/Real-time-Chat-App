@@ -17,6 +17,7 @@ import CreateGroupModal   from "../components/CreateGroupModal";
 import NativeEmptyState   from "../components/NativeEmptyState";
 import LeftRail           from "../components/LeftRail";
 import CallsList          from "../components/CallsList";
+import DrawerPanel        from "../components/DrawerPanel";
 import SettingsPage       from "./SettingsPage";
 
 function ChatPage() {
@@ -31,7 +32,7 @@ function ChatPage() {
   const [showArchived, setShowArchived] = useState(false);
   const [showStarred,  setShowStarred]  = useState(false);
   const [showNewGroup, setShowNewGroup] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     fetchGroups();
@@ -90,7 +91,7 @@ function ChatPage() {
   }
 
   return (
-    <div className="flex w-full h-screen overflow-hidden text-white bg-[#0b141a]">
+    <div className="flex w-full h-screen overflow-hidden text-white bg-[#000000]">
 
       {/* Column 1: Native 60px Nav Rail */}
       <LeftRail activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -99,7 +100,7 @@ function ChatPage() {
       <aside
         className={`flex-shrink-0 flex flex-col w-full sm:w-[340px] md:w-[380px] z-10
           ${panelOpen ? "hidden sm:flex" : "flex"}`}
-        style={{ background: "#111b21", borderRight: "1px solid rgba(255,255,255,0.05)" }}
+        style={{ background: "#000000", borderRight: "1px solid #141414" }}
       >
         {(!activeTab || ["chats", "chatify-ai", "settings"].includes(activeTab)) && (
           <ChatsList 
@@ -107,6 +108,7 @@ function ChatPage() {
             onSelectGroup={openGroup} 
             onShowNewGroup={() => setShowNewGroup(true)} 
             onShowStarred={() => setShowStarred(true)} 
+            onOpenDrawer={() => setIsDrawerOpen(true)}
           />
         )}
         {activeTab === "contacts"    && <div className="flex-1 overflow-y-auto"><ContactList /></div>}
@@ -121,12 +123,12 @@ function ChatPage() {
       </aside>
 
       {/* Column 3: Main panel / Conversation area */}
-      <main className={`flex-1 flex flex-col min-w-0 bg-[#0b141a] relative ${panelOpen ? "flex" : "hidden sm:flex"}`}>
+      <main className={`flex-1 flex flex-col min-w-0 bg-[#000000] relative ${panelOpen ? "flex" : "hidden sm:flex"}`}>
         {rightPanel()}
       </main>
 
       {showNewGroup  && <CreateGroupModal onClose={() => setShowNewGroup(false)} />}
-      {(showSettings || activeTab === "settings") && <SettingsPage onClose={() => { setShowSettings(false); setActiveTab("chats"); }} />}
+      <DrawerPanel isOpen={isDrawerOpen || activeTab === "settings"} onClose={() => { setIsDrawerOpen(false); if(activeTab === "settings") setActiveTab("chats"); }} />
     </div>
   );
 }
@@ -144,8 +146,8 @@ function GroupsList({ groups, selected, onSelect }) {
       {groups.map((g) => (
         <div key={String(g._id)} onClick={() => onSelect(g)}
           className={`chat-row ${selected?._id === g._id || String(selected?._id) === String(g._id) ? "active" : ""}`}>
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-lg font-bold"
-            style={{ background: 'linear-gradient(135deg, #00A884, #008f6f)', color: 'white' }}>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-lg font-bold border border-[#262626]"
+            style={{ background: '#111111', color: 'white' }}>
             {g.name[0].toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">

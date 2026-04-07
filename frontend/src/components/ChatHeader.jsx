@@ -97,10 +97,8 @@ export default function ChatHeader({ onAISummary }) {
 
   return (
     <>
-      <div className="flex-shrink-0" style={{ background: "#202c33", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="flex-shrink-0" style={{ background: "var(--bg-header)", borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2 px-3 h-[64px] relative">
-          <div className="absolute top-0 left-0 right-0 h-[2px]"
-            style={{ background: "linear-gradient(90deg, #4fd1c5, #667eea)", opacity: 0.5 }} />
 
           <button onClick={() => setSelectedUser(null)} className="icon-btn sm:hidden">
             <ArrowLeftIcon className="w-5 h-5" />
@@ -108,11 +106,11 @@ export default function ChatHeader({ onAISummary }) {
 
           <div className="relative flex-shrink-0 cursor-pointer" onClick={() => setShowContactInfo(true)}>
             <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullName}
-              className="w-10 h-10 rounded-full object-cover hover:opacity-90 transition-opacity"
-              style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }} />
+              className="w-10 h-10 rounded-full object-cover hover:opacity-90 transition-opacity bg-[#141414]"
+              style={{ border: "1px solid #262626" }} />
             {isOnline && (
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2"
-                style={{ background: "#48bb78", borderColor: "var(--bg-header)" }} />
+                style={{ background: "#10b981", borderColor: "#0a0a0a" }} />
             )}
           </div>
 
@@ -124,8 +122,7 @@ export default function ChatHeader({ onAISummary }) {
               </p>
               {/* Disappear timer badge */}
               {disappearLabel && (
-                <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                  style={{ background: "rgba(79,209,197,0.15)", color: "var(--accent)" }}>
+                <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 bg-white/10 text-white">
                   <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
@@ -136,14 +133,14 @@ export default function ChatHeader({ onAISummary }) {
             </div>
             {isTyping ? (
               <div className="flex items-center gap-1.5">
-                <span className="text-[12px]" style={{ color: "#4fd1c5" }}>typing</span>
-                <span className="flex gap-0.5">{[0,100,200].map((d) => (
-                  <span key={d} className="w-1 h-1 rounded-full animate-bounce"
-                    style={{ background: "#4fd1c5", animationDelay: `${d}ms` }} />
+                <span className="text-[12px] text-white italic">typing</span>
+                <span className="flex gap-0.5 pt-1">{[0,100,200].map((d) => (
+                  <span key={d} className="w-1 h-1 rounded-full animate-bounce bg-white typing-dot"
+                    style={{ animationDelay: `${d}ms` }} />
                 ))}</span>
               </div>
             ) : (
-              <p className="text-[12px]" style={{ color: isOnline ? "#48bb78" : "var(--text-muted)" }}>
+              <p className="text-[12px] font-medium" style={{ color: isOnline ? "#10b981" : "var(--text-secondary)" }}>
                 {isOnline ? "Online" : lastSeenLabel(lastSeen)}
               </p>
             )}
@@ -155,8 +152,7 @@ export default function ChatHeader({ onAISummary }) {
           <button className="icon-btn" title="Video call" onClick={() => startCall(selectedUser._id, true)}>
             <VideoIcon className="w-[18px] h-[18px]" />
           </button>
-          <button className="icon-btn" title="AI Conversation Summary" onClick={onAISummary}
-            style={{ color: '#00a884' }}>
+          <button className="icon-btn text-[#a3a3a3] hover:text-white" title="AI Conversation Summary" onClick={onAISummary}>
             <Sparkles className="w-[17px] h-[17px]" />
           </button>
 
@@ -165,7 +161,7 @@ export default function ChatHeader({ onAISummary }) {
               <MoreVerticalIcon className="w-[17px] h-[17px]" />
             </button>
             {menuOpen && (
-              <div className="dropdown-menu animate-dropdown" style={{ top: 44, right: 0, minWidth: 220 }}>
+              <div className="dropdown-menu animate-dropdown" style={{ top: 44, right: 0, minWidth: 220, zIndex: 999, position: 'absolute' }}>
                 <MenuItem icon={<UserIcon className="w-4 h-4" />} label="Contact info"
                   onClick={() => { setShowContactInfo(true); setMenuOpen(false); }} />
                 <MenuItem icon={<SearchIcon className="w-4 h-4" />} label="Search messages"

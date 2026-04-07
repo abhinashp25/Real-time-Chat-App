@@ -36,7 +36,7 @@ function AISummaryOverlay({ messages, user, onClose }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="absolute inset-0 z-50 flex items-center justify-center"
-      style={{ backdropFilter: "blur(20px)", background: "rgba(11,20,26,0.85)" }}
+      style={{ backdropFilter: "blur(20px)", background: "rgba(0,0,0,0.85)" }}
       onClick={onClose}
     >
       <motion.div
@@ -45,12 +45,12 @@ function AISummaryOverlay({ messages, user, onClose }) {
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         className="w-full max-w-sm mx-4 rounded-2xl overflow-hidden shadow-2xl"
-        style={{ background: "#1a2632", border: "1px solid rgba(0,168,132,0.2)" }}
+        style={{ background: "#111111", border: "1px solid #262626" }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4"
-          style={{ background: "linear-gradient(135deg, #005c4b, #00a884)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          style={{ background: "#0a0a0a", borderBottom: "1px solid #262626" }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center"
               style={{ background: "rgba(255,255,255,0.15)" }}>
@@ -73,8 +73,8 @@ function AISummaryOverlay({ messages, user, onClose }) {
             { label: "Sent", value: myMsgs },
             { label: "Received", value: totalMsgs - myMsgs }
           ].map(s => (
-            <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: "#202c33" }}>
-              <p className="text-[20px] font-bold text-[#00a884]">{s.value}</p>
+            <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: "#1a1a1a" }}>
+              <p className="text-[20px] font-bold text-white">{s.value}</p>
               <p className="text-[11px] text-[#8696a0] mt-0.5">{s.label}</p>
             </div>
           ))}
@@ -82,14 +82,14 @@ function AISummaryOverlay({ messages, user, onClose }) {
 
         {/* Sentiment + Status */}
         <div className="px-4 pb-3">
-          <div className="rounded-xl p-3.5 flex items-center gap-3" style={{ background: "#202c33" }}>
+          <div className="rounded-xl p-3.5 flex items-center gap-3" style={{ background: "#1a1a1a" }}>
             <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(0,168,132,0.15)" }}>
+              style={{ background: "rgba(255,255,255,0.1)" }}>
               <span className="text-xl">{sentiment === "Active" ? "🔥" : sentiment === "Engaged" ? "💬" : "✨"}</span>
             </div>
             <div>
               <p className="text-[13px] font-semibold text-[#e9edef]">Conversation Status</p>
-              <p className="text-[12px] text-[#00a884]">{sentiment} · {totalMsgs} total messages</p>
+              <p className="text-[12px] text-white">{sentiment} · {totalMsgs} total messages</p>
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@ function AISummaryOverlay({ messages, user, onClose }) {
             <div className="flex flex-wrap gap-2">
               {keywords.map(k => (
                 <span key={k} className="px-2.5 py-1 rounded-full text-[12px] font-medium capitalize"
-                  style={{ background: "rgba(0,168,132,0.12)", color: "#00a884", border: "1px solid rgba(0,168,132,0.2)" }}>
+                  style={{ background: "rgba(255,255,255,0.1)", color: "white", border: "1px solid rgba(255,255,255,0.2)" }}>
                   {k}
                 </span>
               ))}
@@ -113,7 +113,7 @@ function AISummaryOverlay({ messages, user, onClose }) {
         {lastSender?.text && (
           <div className="px-4 pb-4">
             <p className="text-[11px] font-semibold text-[#8696a0] uppercase tracking-wider mb-2">Latest Message</p>
-            <div className="rounded-xl p-3" style={{ background: "#202c33" }}>
+            <div className="rounded-xl p-3" style={{ background: "#1a1a1a" }}>
               <p className="text-[13px] text-[#d1d7db] line-clamp-2">{lastSender.text}</p>
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function ChatContainer() {
     selectedUser, getMessagesByUserId, markMessagesAsRead,
     messages, isMessagesLoading, subscribeToMessages, unsubscribeFromMessages,
     toggleReaction, deleteMessage, searchQuery,
-    setReplyingTo, toggleStarMessage, togglePinMessage, pinnedMessage,
+    setReplyingTo, toggleStarMessage, togglePinMessage, pinnedMessage, typingUsers
   } = useChatStore();
   const { authUser } = useAuthStore();
 
@@ -229,9 +229,9 @@ export default function ChatContainer() {
             const el = document.getElementById(`msg-${pinnedMessage._id}`);
             el?.scrollIntoView({ behavior: "smooth", block: "center" });
           }}>
-          <div className="w-0.5 h-7 rounded-full flex-shrink-0" style={{ background: "#00a884" }} />
+          <div className="w-0.5 h-7 rounded-full flex-shrink-0" style={{ background: "white" }} />
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#00a884]">📌 Pinned Message</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-white">📌 Pinned Message</p>
             <p className="text-[12px] truncate text-[#8696a0]">
               {pinnedMessage.document ? "📄 Document" : pinnedMessage.image ? "📷 Photo" : pinnedMessage.audio ? "🎤 Voice" : pinnedMessage.text}
             </p>
@@ -251,6 +251,7 @@ export default function ChatContainer() {
           <NoChatHistoryPlaceholder name={selectedUser.fullName} />
         ) : (
           <div className="max-w-[760px] mx-auto">
+            <AnimatePresence initial={false}>
             {groupedMessages.map((item) => {
               if (item.type === 'date') {
                 return <DatePill key={item.id} date={item.date} />;
@@ -310,7 +311,7 @@ export default function ChatContainer() {
                     <div
                       className={`${isMine ? "bubble-mine" : "bubble-theirs"} 
                         ${searchQuery && msg.text?.toLowerCase().includes(searchQuery.toLowerCase()) ? "ring-2 ring-yellow-400/40" : ""} 
-                        ${msg.isPinned ? "ring-1 ring-[#00a884]/30" : ""} bubble`}
+                        ${msg.isPinned ? "ring-1 ring-white/30" : ""} bubble`}
                       onContextMenu={(e) => {
                         if (msg.isOptimistic || msg.isDeletedForAll) return;
                         e.preventDefault(); e.stopPropagation();
@@ -327,8 +328,8 @@ export default function ChatContainer() {
                       {/* Reply quote */}
                       {msg.replyTo?.senderName && !msg.isDeletedForAll && (
                         <div className="mb-2 px-2.5 py-1.5 rounded-lg relative overflow-hidden"
-                          style={{ background: isMine ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.25)", borderLeft: "3px solid #00a884" }}>
-                          <p className="text-[11px] font-semibold mb-0.5 text-[#00a884]">{msg.replyTo.senderName}</p>
+                          style={{ background: isMine ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.25)", borderLeft: "3px solid white" }}>
+                          <p className="text-[11px] font-semibold mb-0.5 text-white">{msg.replyTo.senderName}</p>
                           {msg.replyTo.image && <p className="text-[12px] text-[#8696a0]">📷 Photo</p>}
                           {msg.replyTo.audio && <p className="text-[12px] text-[#8696a0]">🎤 Voice message</p>}
                           {msg.replyTo.document && <p className="text-[12px] text-[#8696a0]">📄 Document</p>}
@@ -386,8 +387,8 @@ export default function ChatContainer() {
                             onClick={(e) => { e.stopPropagation(); toggleReaction(msg._id, emoji); }}
                             className="text-[12px] px-2 py-0.5 rounded-full border transition-all"
                             style={{
-                              background: myReaction === emoji ? "rgba(0,168,132,0.18)" : "rgba(26,34,53,0.85)",
-                              borderColor: myReaction === emoji ? "rgba(0,168,132,0.4)" : "rgba(255,255,255,0.08)",
+                              background: myReaction === emoji ? "rgba(255,255,255,0.15)" : "rgba(26,34,53,0.85)",
+                              borderColor: myReaction === emoji ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.08)",
                               color: "var(--text-primary)",
                             }}>
                             {emoji}{count > 1 ? ` ${count}` : ""}
@@ -399,6 +400,22 @@ export default function ChatContainer() {
                 </motion.div>
               );
             })}
+            
+            {typingUsers[selectedUser._id] && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                className="flex justify-start mb-[4px] px-2"
+              >
+                <div className="typing-bubble gap-1.5 shadow-[0_4px_15px_rgba(0,0,0,0.2)] border border-white/5 backdrop-blur-md rounded-2xl p-4 bg-white/5">
+                  <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full typing-dot"></span>
+                  <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full typing-dot"></span>
+                  <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full typing-dot"></span>
+                </div>
+              </motion.div>
+            )}
+            </AnimatePresence>
             <div ref={bottomRef} />
           </div>
         )}
@@ -413,7 +430,7 @@ export default function ChatContainer() {
             exit={{ opacity: 0, scale: 0.7 }}
             onClick={() => bottomRef.current?.scrollIntoView({ behavior: "smooth" })}
             className="absolute bottom-24 right-4 w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-20"
-            style={{ background: "#202c33", border: "1px solid rgba(255,255,255,0.1)" }}>
+            style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}>
             <ChevronDown size={18} className="text-[#aebac1]" />
           </motion.button>
         )}
@@ -604,9 +621,9 @@ function AudioBubble({ src, isMine }) {
   return (
     <div className="flex items-center gap-2.5 mb-1" style={{ minWidth: 230, maxWidth: 290 }}>
       <div className="w-9 h-9 rounded-full flex-shrink-0 overflow-hidden"
-        style={{ background: isMine ? "rgba(255,255,255,0.2)" : "rgba(0,168,132,0.2)" }}>
+        style={{ background: isMine ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.15)" }}>
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full p-2"
-          style={{ color: isMine ? "rgba(255,255,255,0.7)" : "#00a884" }}>
+          style={{ color: isMine ? "rgba(255,255,255,0.7)" : "white" }}>
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
         </svg>
@@ -615,13 +632,13 @@ function AudioBubble({ src, isMine }) {
         <div className="flex items-center gap-1.5">
           <button onClick={toggle}
             className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90"
-            style={{ background: isMine ? "rgba(255,255,255,0.25)" : "rgba(0,168,132,0.25)" }}>
+            style={{ background: isMine ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)" }}>
             {playing ? (
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: isMine ? "white" : "#00a884" }}>
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: "white" }}>
                 <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
               </svg>
             ) : (
-              <svg className="w-3.5 h-3.5 ml-0.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: isMine ? "white" : "#00a884" }}>
+              <svg className="w-3.5 h-3.5 ml-0.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: "white" }}>
                 <polygon points="5,3 19,12 5,21"/>
               </svg>
             )}
@@ -642,7 +659,7 @@ function AudioBubble({ src, isMine }) {
                   style={{
                     height: `${h * 2.5}px`,
                     background: active
-                      ? (isMine ? "rgba(255,255,255,0.9)" : "#00a884")
+                      ? (isMine ? "rgba(255,255,255,0.9)" : "white")
                       : (isMine ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.2)"),
                   }} />
               );
@@ -668,7 +685,7 @@ function DocumentBubble({ doc, isMine }) {
       className="flex items-center gap-3 p-3 mb-1.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
       style={{ background: isMine ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.2)", maxWidth: 290, minWidth: 240 }}>
       <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-        style={{ background: isMine ? "rgba(255,255,255,0.18)" : "rgba(0,168,132,0.2)" }}>
+        style={{ background: isMine ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.1)" }}>
         <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>

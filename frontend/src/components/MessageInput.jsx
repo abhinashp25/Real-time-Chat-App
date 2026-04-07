@@ -6,7 +6,8 @@ import EmojiPicker       from "./EmojiPicker";
 import ReplyBar          from "./ReplyBar";
 import ScheduleModal     from "./ScheduleModal";
 import toast from "react-hot-toast";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Send } from "lucide-react";
+import { motion } from "framer-motion";
 
 const STOP_DELAY = 1500;
 
@@ -98,7 +99,11 @@ export default function MessageInput({ onTextChange }) {
 
   const handleSend = () => {
     if (!text.trim() && !imgPreview && !docPreview) return;
-    if (isSoundEnabled) playRandomKeyStrokeSound();
+    if (isSoundEnabled) {
+      const sendSound = new Audio("/sounds/notification.mp3"); // reuse notification or a pop
+      sendSound.volume = 0.4;
+      sendSound.play().catch(() => {});
+    }
     clearTimeout(timerRef.current); typingRef.current = false; emitStopTyping();
     sendMessage({ text: text.trim(), image: imgPreview, document: docPreview });
     setText(""); setImgPreview(null); setDocPreview(null); setEmojiOpen(false);
@@ -169,7 +174,7 @@ export default function MessageInput({ onTextChange }) {
     : "90d";
 
   return (
-    <div className="flex-shrink-0 safe-bottom" style={{ background: "#202c33", borderTop: "none" }}>
+    <div className="flex-shrink-0 safe-bottom" style={{ background: "var(--bg-secondary)", borderTop: "1px solid var(--border)" }}>
 
       {/* Reply preview */}
       {replyingTo && <ReplyBar />}
@@ -194,24 +199,20 @@ export default function MessageInput({ onTextChange }) {
       {/* Document preview */}
       {docPreview && (
         <div className="px-4 pt-3">
-          <div className="relative inline-flex items-center gap-3 p-3 rounded-xl bg-[#2a3942] border border-white/10 pr-8 shadow-sm">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-white/5">
-              <svg className="w-5 h-5 text-[#00a884]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <div className="relative inline-flex items-center gap-3 p-3 rounded-xl bg-[#141414] border border-[#262626] pr-10 shadow-sm">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <svg className="w-5 h-5 text-[#a3a3a3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
             </div>
             <div className="flex flex-col max-w-[200px]">
-              <span className="text-[13px] text-gray-200 truncate font-medium">{docPreview.filename}</span>
-              <span className="text-[11px] text-gray-400">{(docPreview.size / 1024).toFixed(1)} KB</span>
+              <span className="text-[13px] text-white truncate font-medium">{docPreview.filename}</span>
+              <span className="text-[11px] text-[#737373]">{(docPreview.size / 1024).toFixed(1)} KB</span>
             </div>
             <button type="button"
               onClick={() => { setDocPreview(null); if (fileRef.current) fileRef.current.value = ""; }}
-              className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold"
-              style={{ background: "#fc8181", boxShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold bg-[#ef4444]">
               ×
             </button>
           </div>
@@ -240,15 +241,17 @@ export default function MessageInput({ onTextChange }) {
       )}
 
       {/* Main input row */}
-      <div className="flex items-end gap-2 px-2 py-2">
+      <div className="flex items-center gap-2 px-3 py-2.5">
 
-        {/* + / Attach */}
-        <button type="button"
+        {/* Attach button */}
+        <button
+          type="button"
           onClick={() => fileRef.current?.click()}
-          className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all"
-          style={{ color: "#8696a0" }}>
-          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+          className="icon-btn flex-shrink-0"
+          title="Attach file"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
           </svg>
         </button>
 
@@ -256,68 +259,77 @@ export default function MessageInput({ onTextChange }) {
           <VoiceRecorder onSend={handleVoiceSend} onCancel={() => setVoiceMode(false)} />
         ) : (
           <>
-            <div className="flex-1 flex items-end rounded-[22px] px-4 py-2 min-h-[44px] input-pill-glass">
+            {/* Main pill input */}
+            <div className="flex-1 flex items-center gap-2 rounded-full px-4 h-[44px] input-pill-glass">
               {/* Emoji */}
-              <button type="button"
+              <button
+                type="button"
                 onClick={() => setEmojiOpen((v) => !v)}
-                className="flex-shrink-0 mr-3 mb-0.5"
-                style={{ color: emojiOpen ? "#00a884" : "#8696a0" }}>
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                className="flex-shrink-0 transition-colors"
+                style={{ color: emojiOpen ? "#e5e5e5" : "#737373" }}
+                title="Emoji"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
                   <line x1="9" y1="9" x2="9.01" y2="9"/>
                   <line x1="15" y1="9" x2="15.01" y2="9"/>
                 </svg>
               </button>
+
               <input
                 ref={inputRef}
                 type="text"
                 value={text}
-                onChange={(e) => { setText(e.target.value); handleTyping(e.target.value); }}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  handleTyping(e.target.value);
+                  if (isSoundEnabled) playRandomKeyStrokeSound?.();
+                }}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 placeholder="Type a message"
-                className="flex-1 bg-transparent border-none focus:outline-none text-[14px] leading-[1.4]"
-                style={{ color: "#e9edef", fontFamily: "inherit", minWidth: 0 }}
+                className="flex-1 bg-transparent border-none focus:outline-none text-[14.5px] leading-none"
+                style={{ color: "var(--text-primary)", fontFamily: "inherit" }}
               />
-              <button type="button" onClick={toggleVoiceTyping} className="flex-shrink-0 ml-2" style={{ color: isRecording ? "#00a884" : "#8696a0" }}>
-                {isRecording ? <Mic size={20} className="animate-pulse" /> : <MicOff size={20} />}
+
+              {/* Voice typing toggle */}
+              <button
+                type="button"
+                onClick={toggleVoiceTyping}
+                className="flex-shrink-0 transition-colors"
+                style={{ color: isRecording ? "#ef4444" : "#737373" }}
+                title={isRecording ? "Stop voice typing" : "Voice type"}
+              >
+                {isRecording
+                  ? <Mic size={18} className="animate-pulse" />
+                  : <MicOff size={18} />}
               </button>
+
               <input type="file" ref={fileRef} onChange={handleFile} className="hidden" />
             </div>
 
-            {/* Send / Mic — long-press send to schedule */}
+            {/* Send / Mic button */}
             <div className="relative flex-shrink-0">
-              <button
+              <motion.button
                 type="button"
+                whileTap={{ scale: 0.88 }}
                 onPointerDown={canSend ? onSendPointerDown : undefined}
                 onPointerUp={canSend ? onSendPointerUp : undefined}
                 onPointerLeave={canSend ? onSendPointerLeave : undefined}
                 onClick={canSend ? undefined : () => setVoiceMode(true)}
-                className="w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90 select-none"
+                className="w-11 h-11 rounded-full flex items-center justify-center transition-all select-none"
                 style={{
-                  background: "#00a884",
+                  background: canSend ? "#ffffff" : "#1a1a1a",
+                  color: canSend ? "#000000" : "#737373",
+                  border: canSend ? "none" : "1px solid #262626",
                   touchAction: "none",
                 }}
-                title={canSend ? "Send (hold to schedule)" : "Record voice"}
+                title={canSend ? "Send" : "Record voice"}
               >
-                {canSend ? (
-                  <svg className="w-5 h-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
-                  </svg>
-                )}
-              </button>
-              {/* Schedule tooltip hint */}
-              {canSend && (
-                <div className="absolute -top-7 right-0 whitespace-nowrap px-2 py-1 rounded text-[9px] font-medium pointer-events-none opacity-0 hover:opacity-100"
-                  style={{ background: "rgba(0,0,0,0.7)", color: "white" }}>
-                  Hold to schedule
-                </div>
-              )}
+                {canSend
+                  ? <Send size={17} className="ml-0.5" />
+                  : <Mic size={18} />}
+              </motion.button>
             </div>
           </>
         )}

@@ -44,7 +44,7 @@ export default function CallsList() {
   }
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#111b21" }}>
+    <div className="flex flex-col h-full" style={{ background: "#000000" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
         <h1 className="text-[22px] font-bold text-gray-200">Calls</h1>
@@ -61,14 +61,14 @@ export default function CallsList() {
         <button
           onClick={() => setActiveCallFilter("all")}
           className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-colors ${
-            activeCallFilter === "all" ? "bg-[#00a884]/20 text-[#00a884]" : "bg-[#202c33] text-gray-400"
+            activeCallFilter === "all" ? "bg-white text-black" : "bg-[#141414] text-[#a3a3a3]"
           }`}>
           All
         </button>
         <button
           onClick={() => setActiveCallFilter("missed")}
           className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-colors ${
-            activeCallFilter === "missed" ? "bg-red-500/20 text-red-400" : "bg-[#202c33] text-gray-400"
+            activeCallFilter === "missed" ? "bg-red-500/20 text-red-500" : "bg-[#141414] text-[#a3a3a3]"
           }`}>
           Missed
         </button>
@@ -118,7 +118,7 @@ export default function CallsList() {
               <span className="text-[11.5px] text-gray-500">{formatTime(call.timestamp)}</span>
               <button
                 onClick={(e) => { e.stopPropagation(); startCall(call.user._id, call.isVideo); }}
-                className="p-1.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/10 text-gray-400 hover:text-[#00a884] transition-all"
+                className="p-1.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-[#1a1a1a] text-[#a3a3a3] hover:text-white transition-all"
                 title={`${call.isVideo ? "Video" : "Voice"} call`}
               >
                 {call.isVideo ? <Video size={18} /> : <Phone size={18} />}
@@ -132,7 +132,7 @@ export default function CallsList() {
 }
 
 function CallTypeIcon({ type }) {
-  if (type === "missed") return <PhoneMissed size={14} className="text-red-400 flex-shrink-0" />;
-  if (type === "incoming") return <PhoneIncoming size={14} className="text-green-400 flex-shrink-0" />;
-  return <PhoneOutgoing size={14} className="text-[#00a884] flex-shrink-0" />;
+  if (type === "missed") return <PhoneMissed size={14} className="text-red-500 flex-shrink-0" />;
+  if (type === "incoming") return <PhoneIncoming size={14} className="text-white flex-shrink-0" />;
+  return <PhoneOutgoing size={14} className="text-[#a3a3a3] flex-shrink-0" />;
 }

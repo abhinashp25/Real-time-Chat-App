@@ -24,6 +24,7 @@ export const useChatStore = create((set, get) => ({
   pinnedMessage:     null,
   disappearSeconds:  0,  
   favourites:        JSON.parse(localStorage.getItem("chatify-favourites")) || [],
+  offlineQueue:      JSON.parse(localStorage.getItem("chatify-offline-queue")) || [],
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -101,6 +102,26 @@ export const useChatStore = create((set, get) => ({
     finally { set({ isMessagesLoading: false }); }
   },
 
+  processOfflineQueue: async () => {
+    const queue = get().offlineQueue;
+    if (!queue.length || !window.navigator.onLine) return;
+    
+    toast.success(`Sending ${queue.length} queued messages...`);
+    
+    for (const item of queue) {
+      try {
+        await axiosInstance.post(`/messages/send/${item.receiverId}`, item.payload);
+      } catch (e) {
+        console.error("Failed to send queued message", e);
+      }
+    }
+    
+    set({ offlineQueue: [] });
+    localStorage.removeItem("chatify-offline-queue");
+    get().getMyChatPartners();
+    if (get().selectedUser) get().getMessagesByUserId(get().selectedUser._id);
+  },
+
   sendMessage: async (messageData) => {
     const { selectedUser, replyingTo } = get();
     const { authUser } = useAuthStore.getState();
@@ -118,6 +139,16 @@ export const useChatStore = create((set, get) => ({
     };
 
     set({ messages: [...get().messages, optimistic], replyingTo: null });
+
+    if (!window.navigator.onLine) {
+      const newQueue = [...get().offlineQueue, { receiverId: selectedUser._id, payload }];
+      set({ offlineQueue: newQueue });
+      localStorage.setItem("chatify-offline-queue", JSON.stringify(newQueue));
+      // update optimistic status to pending
+      set({ messages: get().messages.map(m => m._id === tempId ? { ...m, isPendingList: true } : m) });
+      toast("Offline. Message queued", { icon: "⏳" });
+      return;
+    }
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, payload);

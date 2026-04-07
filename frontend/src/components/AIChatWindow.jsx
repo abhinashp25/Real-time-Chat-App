@@ -30,11 +30,10 @@ export default function AIChatWindow({ onClose }) {
   ];
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'var(--bg-primary)' }}>
+    <div className="flex flex-col h-full bg-[#111111]/80 backdrop-blur-xl border-l border-white/5">
 
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 h-[64px] flex-shrink-0 relative"
-        style={{ background: 'var(--bg-header)', borderBottom: '1px solid var(--border)' }}>
+      <div className="flex items-center gap-3 px-4 h-[64px] flex-shrink-0 relative bg-white/5 border-b border-white/10 backdrop-blur-md">
         <div className="absolute top-0 left-0 right-0 h-[2px]"
           style={{ background: 'linear-gradient(90deg, #667eea 0%, #4fd1c5 100%)' }} />
 
@@ -46,8 +45,8 @@ export default function AIChatWindow({ onClose }) {
         </div>
 
         <div className="flex-1">
-          <p className="text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>Chatify AI</p>
-          <p className="text-[11px]" style={{ color: retryAfter > 0 ? '#f6ad55' : '#4fd1c5' }}>
+          <p className="text-[15px] font-bold text-white">Chatify AI</p>
+          <p className="text-[11px]" style={{ color: retryAfter > 0 ? '#f6ad55' : '#00a884' }}>
             {retryAfter > 0 ? `⏳ Cooling down ${retryAfter}s…` : "Always online · Powered by Gemini AI"}
           </p>
         </div>
@@ -82,8 +81,7 @@ export default function AIChatWindow({ onClose }) {
             <div className="grid grid-cols-2 gap-2 w-full max-w-sm">
               {STARTERS.map((s) => (
                 <button key={s} onClick={() => { setInput(s.replace(/^[^\s]+\s/, "")); inputRef.current?.focus(); }}
-                  className="text-left text-[12px] px-3 py-2.5 rounded-xl transition-all hover:scale-[1.02]"
-                  style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                  className="text-left text-[12px] px-3 py-2.5 rounded-xl transition-all hover:scale-[1.02] bg-white/5 text-[#d1d7db] border border-white/10 hover:bg-white/10 backdrop-blur-sm">
                   {s}
                 </button>
               ))}
@@ -101,13 +99,13 @@ export default function AIChatWindow({ onClose }) {
                 </svg>
               </div>
             )}
-            <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed whitespace-pre-wrap`}
+            <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed whitespace-pre-wrap backdrop-blur-sm shadow-sm`}
               style={{
-                background: msg.role === "user" ? 'linear-gradient(145deg, #226b59, #1a4a3d)'
-                  : msg.isError ? 'rgba(246,173,85,0.1)'
-                  : 'var(--bg-panel)',
-                color: msg.isError ? '#f6ad55' : 'var(--text-primary)',
-                border: msg.isError ? '1px solid rgba(246,173,85,0.2)' : '1px solid var(--border)',
+                background: msg.role === "user" ? 'rgba(0,168,132,0.2)' 
+                  : msg.isError ? 'rgba(246,173,85,0.15)'
+                  : 'rgba(255,255,255,0.05)',
+                color: msg.isError ? '#f6ad55' : '#e9edef',
+                border: msg.isError ? '1px solid rgba(246,173,85,0.2)' : '1px solid rgba(255,255,255,0.1)',
                 borderRadius: msg.role === "user" ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
               }}>
               {msg.content}
@@ -148,9 +146,8 @@ export default function AIChatWindow({ onClose }) {
       )}
 
       {/* Input */}
-      <div className="px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
-        <div className="flex items-center gap-2 rounded-2xl px-3 py-2"
-          style={{ background: 'var(--bg-input)', border: `1px solid ${retryAfter > 0 ? 'rgba(246,173,85,0.3)' : 'var(--border)'}` }}>
+      <div className="px-4 py-3 flex-shrink-0 border-t border-white/5 bg-white/5 backdrop-blur-md">
+        <div className="flex items-center gap-2 rounded-2xl px-3 py-2 bg-black/40 border border-white/10">
           <input
             ref={inputRef}
             type="text"
@@ -159,8 +156,8 @@ export default function AIChatWindow({ onClose }) {
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) handleSend(); }}
             placeholder={retryAfter > 0 ? `Cooling down… ${retryAfter}s` : "Ask me anything…"}
             disabled={isBlocked}
-            className="flex-1 bg-transparent border-none focus:outline-none text-sm"
-            style={{ color: isBlocked ? 'var(--text-muted)' : 'var(--text-primary)' }}
+            className="flex-1 bg-transparent border-none focus:outline-none text-[15px]"
+            style={{ color: isBlocked ? '#8696a0' : '#d1d7db' }}
           />
           <button
             onClick={handleSend}
