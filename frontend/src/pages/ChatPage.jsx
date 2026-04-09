@@ -18,7 +18,7 @@ import NativeEmptyState   from "../components/NativeEmptyState";
 import LeftRail           from "../components/LeftRail";
 import CallsList          from "../components/CallsList";
 import DrawerPanel        from "../components/DrawerPanel";
-import SettingsPage       from "./SettingsPage";
+import ProfileSection     from "../components/ProfileSection";
 
 function ChatPage() {
   const { activeTab, setActiveTab, selectedUser, setSelectedUser, chats, unreadCounts } = useChatStore();
@@ -98,7 +98,7 @@ function ChatPage() {
 
       {/* Column 2: Middle Chat List Panel */}
       <aside
-        className={`flex-shrink-0 flex flex-col w-full sm:w-[340px] md:w-[380px] z-10
+        className={`flex-shrink-0 flex flex-col w-full sm:w-[340px] md:w-[380px] z-10 relative overflow-hidden
           ${panelOpen ? "hidden sm:flex" : "flex"}`}
         style={{ background: "#000000", borderRight: "1px solid #141414" }}
       >
@@ -112,6 +112,7 @@ function ChatPage() {
           />
         )}
         {activeTab === "contacts"    && <div className="flex-1 overflow-y-auto"><ContactList /></div>}
+        {activeTab === "profile"     && <ProfileSection onClose={() => setActiveTab("chats")} />}
         {activeTab === "communities" && (
           <div className="flex-1 overflow-y-auto">
             <GroupsList groups={groups} selected={selectedGroup} onSelect={openGroup} />

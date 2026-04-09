@@ -1,26 +1,38 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
-import { useSettingsStore } from '../store/useSettingsStore';
+import { useSettingsStore, THEMES } from '../store/useSettingsStore';
+import { useChatStore } from '../store/useChatStore';
+import toast from 'react-hot-toast';
 import { 
-  X, UserCircle, Palette, Star, Users, Shield, 
-  Wifi, HelpCircle, LogOut, ChevronRight, ArrowLeft 
+  X, UserCircle, Palette, Bell, Shield, 
+  Wifi, HelpCircle, LogOut, ChevronRight, ArrowLeft, Camera, CheckIcon
 } from 'lucide-react';
 
 const DRAWER_SECTIONS = [
   { id: 'profile', icon: <UserCircle size={20} />, label: 'Profile' },
-  { id: 'customization', icon: <Palette size={20} />, label: 'Chat Customization' },
-  { id: 'favourites', icon: <Star size={20} />, label: 'Favourites' },
-  { id: 'groups', icon: <Users size={20} />, label: 'Groups' },
-  { id: 'privacy', icon: <Shield size={20} />, label: 'Privacy & Security' },
-  { id: 'datasaver', icon: <Wifi size={20} />, label: 'Data Saver' },
-  { id: 'help', icon: <HelpCircle size={20} />, label: 'Help & Support' },
+  { id: 'customization', icon: <Palette size={20} />, label: 'Appearance' },
+  { id: 'notifications', icon: <Bell size={20} />, label: 'Notifications' },
+  { id: 'privacy', icon: <Shield size={20} />, label: 'Privacy' },
+  { id: 'datasaver', icon: <Wifi size={20} />, label: 'Data & Storage' },
+  { id: 'help', icon: <HelpCircle size={20} />, label: 'Help' },
 ];
 
 export default function DrawerPanel({ isOpen, onClose }) {
-  const [activeView, setActiveView] = useState('main'); // 'main', 'profile', 'customization', etc.
-  const { authUser, logout } = useAuthStore();
+  const [activeView, setActiveView] = useState('main'); 
+  const { authUser, logout, updateProfile, isUpdatingProfile } = useAuthStore();
   const { theme, setTheme } = useSettingsStore();
+  const { isSoundEnabled, toggleSound } = useChatStore();
+
+  const fileInputRef = useRef(null);
+  const [editName, setEditName] = useState(authUser?.fullName || "");
+  const [editBio, setEditBio] = useState(authUser?.bio || "");
+  const [saveLoading, setSaveLoading] = useState(false);
+
+  // Stubs for toggles
+  const [readReceipts, setReadReceipts] = useState(true);
+  const [lastSeen, setLastSeen] = useState('everyone');
+  const [autoDwnMedia, setAutoDwnMedia] = useState(true);
 
   const handleLogout = () => {
     logout();
@@ -28,6 +40,25 @@ export default function DrawerPanel({ isOpen, onClose }) {
   };
 
   const currentSection = DRAWER_SECTIONS.find(s => s.id === activeView);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async () => {
+      await updateProfile({ profilePic: reader.result });
+      toast.success("Profile photo updated");
+    };
+  };
+
+  const handleSaveProfile = async () => {
+    if (!editName.trim()) return toast.error("Name is required");
+    setSaveLoading(true);
+    await updateProfile({ fullName: editName, bio: editBio });
+    setSaveLoading(false);
+    toast.success("Profile saved");
+  };
 
   return (
     <AnimatePresence>
@@ -38,7 +69,8 @@ export default function DrawerPanel({ isOpen, onClose }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            className="absolute inset-0"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(2px)" }}
             onClick={onClose}
           />
 
@@ -48,10 +80,11 @@ export default function DrawerPanel({ isOpen, onClose }) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="relative w-full sm:w-[380px] h-full bg-[#111111] flex flex-col border-l border-[#262626]"
+            className="relative w-full sm:w-[380px] h-full flex flex-col border-l"
+            style={{ background: 'var(--bg-panel)', borderLeftColor: 'var(--border)' }}
           >
             {/* Header */}
-            <div className="flex items-center px-4 py-6 border-b border-[#262626]">
+            <div className="flex items-center px-4 py-6 border-b" style={{ borderBottomColor: 'var(--border)' }}>
               {activeView !== 'main' ? (
                 <button 
                   onClick={() => setActiveView('main')}
@@ -61,13 +94,14 @@ export default function DrawerPanel({ isOpen, onClose }) {
                 </button>
               ) : null}
               
-              <h2 className="text-lg font-semibold brand-font flex-1">
+              <h2 className="text-lg font-semibold brand-font flex-1 text-white">
                 {activeView === 'main' ? 'Settings' : currentSection?.label}
               </h2>
 
               <button 
                 onClick={onClose}
-                className="p-2 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1a1a1a] transition-colors"
+                className="p-2 rounded-xl transition-colors hover:bg-white/10"
+                style={{ color: "var(--text-muted)" }}
               >
                 <X size={20} />
               </button>
@@ -88,16 +122,20 @@ export default function DrawerPanel({ isOpen, onClose }) {
                     className="flex flex-col"
                   >
                     {/* User Mini Profile Header */}
-                    <div className="p-6 flex items-center gap-4 border-b border-[#262626]">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-[#141414] border border-[#262626]">
+                    <div 
+                      className="p-6 flex items-center gap-4 border-b cursor-pointer hover:bg-white/5 transition-colors" 
+                      style={{ borderBottomColor: 'var(--border)' }}
+                      onClick={() => setActiveView('profile')}
+                    >
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-[#141414] border border-[#262626] flex-shrink-0">
                         <img 
                           src={authUser?.profilePic || "/avatar.png"} 
                           className="w-full h-full object-cover" 
                         />
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold brand-font tracking-wide">{authUser?.fullName}</h3>
-                        <p className="text-sm text-white/50">{authUser?.status || "Hey there! I am using Chatify."}</p>
+                      <div className="min-w-0">
+                        <h3 className="text-xl font-bold brand-font tracking-wide text-white truncate">{authUser?.fullName}</h3>
+                        <p className="text-sm text-white/50 truncate">{authUser?.status || authUser?.bio || "Available"}</p>
                       </div>
                     </div>
 
@@ -107,15 +145,15 @@ export default function DrawerPanel({ isOpen, onClose }) {
                         <button
                           key={section.id}
                           onClick={() => setActiveView(section.id)}
-                          className="w-full flex items-center justify-between p-4 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1a1a1a] transition-all group"
+                          className="w-full flex items-center justify-between p-4 rounded-xl transition-all group hover:bg-white/5"
                         >
                           <div className="flex items-center gap-4 transition-colors">
-                            <div className="p-2 rounded-lg bg-[#141414] group-hover:bg-[#262626] transition-colors">
+                            <div className="p-2 rounded-lg group-hover:bg-white/10 transition-colors" style={{ color: "var(--text-secondary)" }}>
                               {section.icon}
                             </div>
-                            <span className="font-medium text-[15px]">{section.label}</span>
+                            <span className="font-medium text-[15px] text-white">{section.label}</span>
                           </div>
-                          <ChevronRight size={18} className="text-[#333] group-hover:text-[#a3a3a3] transition-colors" />
+                          <ChevronRight size={18} className="text-[#8696a0] group-hover:text-white transition-colors" />
                         </button>
                       ))}
 
@@ -140,24 +178,52 @@ export default function DrawerPanel({ isOpen, onClose }) {
                     animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }}
                     className="p-6 flex flex-col items-center"
                   >
-                    <div className="w-28 h-28 rounded-full overflow-hidden bg-[#141414] border border-[#262626] mb-6 relative group cursor-pointer">
+                    <div className="w-32 h-32 rounded-full overflow-hidden bg-[#141414] border border-[#262626] mb-6 relative group cursor-pointer"
+                         onClick={() => fileInputRef.current?.click()}
+                    >
                       <img 
                         src={authUser?.profilePic || "/avatar.png"} 
                         className="w-full h-full object-cover" 
                       />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                        <UserCircle size={32} />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                        <Camera size={24} className="mb-1" />
+                        <span className="text-[10px] uppercase font-bold text-center leading-tight">Change<br/>Photo</span>
                       </div>
+                      {isUpdatingProfile && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60">
+                          <div className="w-6 h-6 border-2 border-t-[#00a884] border-white/20 rounded-full animate-spin" />
+                        </div>
+                      )}
+                      <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
                     </div>
+                    
                     <div className="w-full space-y-6">
                       <div>
-                        <label className="text-xs text-[#a3a3a3] uppercase tracking-widest font-semibold mb-2 block">Display Name</label>
-                        <input type="text" defaultValue={authUser?.fullName} className="w-full bg-[#141414] border border-[#262626] rounded-xl p-3 text-white focus:outline-none focus:border-[#555]" />
+                        <label className="text-xs text-[#00a884] uppercase tracking-widest font-semibold mb-2 block">Your Name</label>
+                        <input 
+                          type="text" 
+                          value={editName} 
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="w-full bg-[#111111] border-b-2 border-[#262626] focus:border-[#00a884] p-2 text-white outline-none transition-colors" 
+                        />
+                        <p className="text-[11px] text-[#8696a0] mt-2">This is not your username or pin. This name will be visible to your contacts.</p>
                       </div>
                       <div>
-                        <label className="text-xs text-[#a3a3a3] uppercase tracking-widest font-semibold mb-2 block">About</label>
-                        <input type="text" defaultValue={authUser?.status || "Hey there! I am using Chatify."} className="w-full bg-[#141414] border border-[#262626] rounded-xl p-3 text-white focus:outline-none focus:border-[#555]" />
+                        <label className="text-xs text-[#00a884] uppercase tracking-widest font-semibold mb-2 block">About</label>
+                        <input 
+                          type="text" 
+                          value={editBio} 
+                          onChange={(e) => setEditBio(e.target.value)}
+                          className="w-full bg-[#111111] border-b-2 border-[#262626] focus:border-[#00a884] p-2 text-white outline-none transition-colors" 
+                        />
                       </div>
+                      <button 
+                        onClick={handleSaveProfile}
+                        disabled={saveLoading}
+                        className="w-full py-3 bg-[#00a884] text-black font-bold rounded-xl hover:bg-[#00c298] transition-colors mt-4 flex items-center justify-center"
+                      >
+                        {saveLoading ? "Saving..." : "Save Profile"}
+                      </button>
                     </div>
                   </motion.div>
                 )}
@@ -171,22 +237,18 @@ export default function DrawerPanel({ isOpen, onClose }) {
                   >
                      <div className="space-y-8">
                         <div>
-                          <h4 className="text-sm font-semibold text-[#a3a3a3] mb-4 uppercase tracking-wider">Premium Theme</h4>
+                          <h4 className="text-sm font-semibold text-[#a3a3a3] mb-4 uppercase tracking-wider">Themes</h4>
                           <div className="grid grid-cols-2 gap-3">
-                              {['Monochrome', 'Carbon', 'Obsidian', 'Midnight'].map(t => (
-                                <button key={t} className="p-3 bg-[#141414] rounded-xl border border-[#262626] hover:border-[#555] hover:bg-[#1a1a1a] transition-all capitalize">
+                              {THEMES.map((t) => (
+                                <button 
+                                  key={t} 
+                                  onClick={() => setTheme(t)}
+                                  className={`p-3 rounded-xl border transition-all capitalize flex items-center justify-between
+                                    ${theme === t ? 'bg-[#00a884]/20 border-[#00a884] text-[#00a884]' : 'bg-[#141414] border-[#262626] text-white hover:border-[#555]'}`}
+                                >
                                   {t}
+                                  {theme === t && <CheckIcon size={16} />}
                                 </button>
-                              ))}
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-semibold text-[#a3a3a3] mb-4 uppercase tracking-wider">Wallpapers</h4>
-                          <div className="grid grid-cols-3 gap-3">
-                              {[1, 2, 3].map(i => (
-                                <div key={i} className={`h-24 rounded-lg border-2 ${i === 1 ? 'border-[#ffffff]' : 'border-transparent'} bg-[#141414] overflow-hidden cursor-pointer hover:border-[#555] flex items-center justify-center`}>
-                                   <div className="w-full h-full bg-[#000000]"></div>
-                                </div>
                               ))}
                           </div>
                         </div>
@@ -194,18 +256,103 @@ export default function DrawerPanel({ isOpen, onClose }) {
                   </motion.div>
                 )}
 
-                {/* DEFAULT FALLBACK FOR TBD VIEWS */}
-                {!['main', 'profile', 'customization'].includes(activeView) && (
+                {/* NOTIFICATIONS VIEW */}
+                {activeView === 'notifications' && (
                   <motion.div 
-                    key="fallback" initial={{ x: 20, opacity: 0 }} 
+                    key="notifications" initial={{ x: 20, opacity: 0 }} 
                     animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }}
-                    className="p-6 flex flex-col items-center justify-center h-full text-center"
+                    className="p-6"
                   >
-                     <div className="w-20 h-20 rounded-full bg-[#141414] border border-[#262626] flex items-center justify-center mb-6 text-[#555]">
-                       <Shield size={32} />
-                     </div>
-                     <h3 className="text-lg font-bold brand-font mb-2 text-white">Coming Soon</h3>
-                     <p className="text-[#a3a3a3] text-sm max-w-[240px]">This premium feature is currently being developed.</p>
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white font-medium">Message Sounds</p>
+                          <p className="text-xs text-[#8696a0]">Play sounds for incoming messages</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" checked={isSoundEnabled} onChange={toggleSound} />
+                          <div className="w-11 h-6 bg-[#333] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00a884]"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* PRIVACY VIEW */}
+                {activeView === 'privacy' && (
+                  <motion.div 
+                    key="privacy" initial={{ x: 20, opacity: 0 }} 
+                    animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }}
+                    className="p-6"
+                  >
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white font-medium">Read Receipts</p>
+                          <p className="text-xs text-[#8696a0]">If turned off, you won't send or receive Read Receipts.</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" checked={readReceipts} onChange={() => setReadReceipts(!readReceipts)} />
+                          <div className="w-11 h-6 bg-[#333] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00a884]"></div>
+                        </label>
+                      </div>
+                      <div className="pt-4 border-t border-[#262626]">
+                        <p className="text-[#a3a3a3] text-sm font-semibold mb-3">Last Seen</p>
+                        <select 
+                          className="w-full bg-[#141414] text-white p-3 rounded-xl border border-[#262626] outline-none"
+                          value={lastSeen}
+                          onChange={(e) => setLastSeen(e.target.value)}
+                        >
+                          <option value="everyone">Everyone</option>
+                          <option value="contacts">My Contacts</option>
+                          <option value="nobody">Nobody</option>
+                        </select>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* DATASAVER VIEW */}
+                {activeView === 'datasaver' && (
+                  <motion.div 
+                    key="datasaver" initial={{ x: 20, opacity: 0 }} 
+                    animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }}
+                    className="p-6"
+                  >
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white font-medium">Auto-Download Media</p>
+                          <p className="text-xs text-[#8696a0]">Automatically download photos/videos</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" checked={autoDwnMedia} onChange={() => setAutoDwnMedia(!autoDwnMedia)} />
+                          <div className="w-11 h-6 bg-[#333] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00a884]"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* HELP VIEW */}
+                {activeView === 'help' && (
+                  <motion.div 
+                    key="help" initial={{ x: 20, opacity: 0 }} 
+                    animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }}
+                    className="p-6 flex flex-col items-center justify-center pt-20"
+                  >
+                    <div className="w-20 h-20 bg-[#00a884] rounded-full flex items-center justify-center mb-4">
+                      <HelpCircle size={40} className="text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Chatify Web</h3>
+                    <p className="text-[#8696a0] text-sm mb-6">Version 2.7.1</p>
+                    
+                    <button className="w-full py-3 bg-[#141414] hover:bg-[#262626] border border-[#262626] text-white font-medium rounded-xl transition-colors mb-3">
+                      Contact Us
+                    </button>
+                    <button className="w-full py-3 bg-[#141414] hover:bg-[#262626] border border-[#262626] text-white font-medium rounded-xl transition-colors">
+                      Terms and Privacy Policy
+                    </button>
                   </motion.div>
                 )}
 

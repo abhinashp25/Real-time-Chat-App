@@ -680,31 +680,77 @@ function AudioBubble({ src, isMine }) {
 }
 
 function DocumentBubble({ doc, isMine }) {
+  const ext = (doc.filename || "").split('.').pop().toLowerCase();
+  
+  // Choose an icon based on extension
+  let IconSVG;
+  if (['pdf'].includes(ext)) {
+    IconSVG = (
+      <svg className="w-5 h-5" style={{ color: "#ef4444" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6" />
+        <path d="M10 18v-2h4v2" />
+        <path d="M8 18v-2h2v2" />
+      </svg>
+    );
+  } else if (['doc', 'docx'].includes(ext)) {
+    IconSVG = (
+      <svg className="w-5 h-5" style={{ color: "#3b82f6" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6" />
+        <path d="M16 13l-4 4-4-4" />
+      </svg>
+    );
+  } else if (['xls', 'xlsx', 'csv'].includes(ext)) {
+    IconSVG = (
+      <svg className="w-5 h-5" style={{ color: "#10b981" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6" />
+        <path d="M8 13h2v4H8z" />
+        <path d="M14 13h2v4h-2z" />
+      </svg>
+    );
+  } else if (['zip', 'rar', '7z', 'tar'].includes(ext)) {
+    IconSVG = (
+      <svg className="w-5 h-5" style={{ color: "#eab308" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6" />
+        <path d="M8 10h8" />
+        <path d="M8 14h8" />
+        <path d="M8 18h8" />
+      </svg>
+    );
+  } else {
+    IconSVG = (
+      <svg className="w-5 h-5" style={{ color: "#9ca3af" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+    );
+  }
+
   return (
-    <a href={doc.url} target="_blank" rel="noreferrer"
+    <a href={doc.url} target="_blank" rel="noreferrer" download={doc.filename}
       className="flex items-center gap-3 p-3 mb-1.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
       style={{ background: isMine ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.2)", maxWidth: 290, minWidth: 240 }}>
       <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
         style={{ background: isMine ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.1)" }}>
-        <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-        </svg>
+        {IconSVG}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[13px] font-medium truncate text-white">{doc.filename || "Document"}</p>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-[10px] uppercase font-bold" style={{ color: isMine ? "rgba(255,255,255,0.55)" : "#8696a0" }}>
-            {(doc.filename || "").split('.').pop()}
+            {ext || "?"}
           </span>
           <span className="text-[10px]" style={{ color: isMine ? "rgba(255,255,255,0.4)" : "#667781" }}>
             • {(doc.size / 1024).toFixed(1)} KB
           </span>
         </div>
       </div>
-      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors hover:bg-black/40"
         style={{ background: isMine ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.05)" }}>
         <svg className="w-4 h-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>

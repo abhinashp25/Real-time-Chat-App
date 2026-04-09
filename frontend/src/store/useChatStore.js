@@ -132,7 +132,7 @@ export const useChatStore = create((set, get) => ({
     const optimistic = {
       _id: tempId,
       senderId: authUser._id, receiverId: selectedUser._id,
-      text: messageData.text, image: messageData.image, audio: messageData.audio,
+      text: messageData.text, image: messageData.image, audio: messageData.audio, document: messageData.document,
       replyTo: replyingTo || undefined,
       isForwarded: messageData.isForwarded || false,
       createdAt: new Date().toISOString(), isOptimistic: true, isRead: false, reactions: [],
