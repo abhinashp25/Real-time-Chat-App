@@ -6,8 +6,9 @@ import EmojiPicker       from "./EmojiPicker";
 import ReplyBar          from "./ReplyBar";
 import ScheduleModal     from "./ScheduleModal";
 import toast from "react-hot-toast";
-import { Mic, MicOff, Send } from "lucide-react";
+import { Mic, MicOff, Send, PenTool, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import SketchCanvas from "./SketchCanvas";
 
 const STOP_DELAY = 1500;
 
@@ -17,6 +18,8 @@ export default function MessageInput({ onTextChange }) {
   const [imgPreview, setImgPreview] = useState(null);
   const [docPreview, setDocPreview] = useState(null);
   const [emojiOpen, setEmojiOpen]   = useState(false);
+  const [sketchOpen, setSketchOpen] = useState(false);
+  const [isWhisper, setIsWhisper]   = useState(false);
   const [voiceMode, setVoiceMode]   = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -105,15 +108,22 @@ export default function MessageInput({ onTextChange }) {
       sendSound.play().catch(() => {});
     }
     clearTimeout(timerRef.current); typingRef.current = false; emitStopTyping();
-    sendMessage({ text: text.trim(), image: imgPreview, document: docPreview });
-    setText(""); setImgPreview(null); setDocPreview(null); setEmojiOpen(false);
+    sendMessage({ text: text.trim(), image: imgPreview, document: docPreview, isWhisper });
+    setText(""); setImgPreview(null); setDocPreview(null); setEmojiOpen(false); setIsWhisper(false);
     onTextChange?.("");
     if (fileRef.current) fileRef.current.value = "";
   };
 
   const handleVoiceSend = (audioBase64) => {
-    sendMessage({ audio: audioBase64 });
+    sendMessage({ audio: audioBase64, isWhisper });
     setVoiceMode(false);
+    setIsWhisper(false);
+  };
+
+  const handleSketchSend = (dataUrl) => {
+    sendMessage({ image: dataUrl, isWhisper });
+    setSketchOpen(false);
+    setIsWhisper(false);
   };
 
   const handleFile = (e) => {
@@ -221,9 +231,14 @@ export default function MessageInput({ onTextChange }) {
 
       {/* Emoji picker */}
       {emojiOpen && (
-        <div className="px-3 pt-2">
+        <div className="px-3 pt-2 absolute bottom-20 left-0 bg-[#0d0d0d] rounded-t-2xl shadow-2xl z-40 border border-white/5 w-full">
           <EmojiPicker onSelect={insertEmoji} onClose={() => setEmojiOpen(false)} />
         </div>
+      )}
+
+      {/* Sketch Canvas */}
+      {sketchOpen && (
+        <SketchCanvas onSend={handleSketchSend} onCancel={() => setSketchOpen(false)} />
       )}
 
       {/* Disappear timer badge — shows when timer is active */}
@@ -242,6 +257,26 @@ export default function MessageInput({ onTextChange }) {
 
       {/* Main input row */}
       <div className="flex items-center gap-2 px-3 py-2.5">
+        
+        {/* Whisper Mode Toggle */}
+        <button
+          type="button"
+          onClick={() => setIsWhisper(!isWhisper)}
+          className={`icon-btn flex-shrink-0 ${isWhisper ? 'text-indigo-400 bg-indigo-500/10' : ''}`}
+          title={isWhisper ? "Whisper mode on" : "Whisper mode off"}
+        >
+          <EyeOff size={18} />
+        </button>
+
+        {/* Sketch button */}
+        <button
+          type="button"
+          onClick={() => setSketchOpen(!sketchOpen)}
+          className="icon-btn flex-shrink-0"
+          title="Draw a sketch"
+        >
+          <PenTool size={18} />
+        </button>
 
         {/* Attach button */}
         <button

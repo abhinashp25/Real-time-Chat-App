@@ -42,6 +42,7 @@ const messageSchema = new mongoose.Schema(
     },
     
     isForwarded: { type: Boolean, default: false },
+    isWhisper: { type: Boolean, default: false },
 
     starredBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 

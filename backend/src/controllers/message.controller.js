@@ -106,7 +106,7 @@ export const getMessagesByUserId = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image, audio, replyTo, isForwarded } = req.body;
+    const { text, image, audio, replyTo, isForwarded, isWhisper } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
@@ -137,6 +137,7 @@ export const sendMessage = async (req, res) => {
       senderId, receiverId, text, image: imageUrl, audio: audioUrl, document: documentObj,
       replyTo: replyTo || undefined,
       isForwarded: isForwarded || false,
+      isWhisper: isWhisper || false,
       expiresAt,
     });
     await newMessage.save();

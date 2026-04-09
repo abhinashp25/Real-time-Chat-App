@@ -311,7 +311,7 @@ export default function ChatContainer() {
                     <div
                       className={`${isMine ? "bubble-mine" : "bubble-theirs"} 
                         ${searchQuery && msg.text?.toLowerCase().includes(searchQuery.toLowerCase()) ? "ring-2 ring-yellow-400/40" : ""} 
-                        ${msg.isPinned ? "ring-1 ring-white/30" : ""} bubble`}
+                        ${msg.isPinned ? "ring-1 ring-white/30" : ""} bubble ${msg.isWhisper ? "whisper-blur" : ""}`}
                       onContextMenu={(e) => {
                         if (msg.isOptimistic || msg.isDeletedForAll) return;
                         e.preventDefault(); e.stopPropagation();

@@ -23,19 +23,29 @@ export default function ForwardModal({ message, onClose }) {
     setSending(true);
     // Forward = send the message content to each selected contact
     for (const contactId of selected) {
-      // Temporarily set selectedUser to send
       const contact = allContacts.find((c) => c._id === contactId);
       if (!contact) continue;
       
-      // Use axiosInstance directly so we don't change selectedUser
-      const { axiosInstance } = await import("../lib/axios");
-      await axiosInstance.post(`/messages/send/${contactId}`, {
-        text: message.text || undefined,
-        image: message.image || undefined,
-        audio: message.audio || undefined,
-        isForwarded: true,
-      }).catch(() => {});
+      try {
+        const { axiosInstance } = await import("../lib/axios");
+        const res = await axiosInstance.post(`/messages/send/${contactId}`, {
+          text: message.text || undefined,
+          image: message.image || undefined,
+          audio: message.audio || undefined,
+          isForwarded: true,
+        });
+
+        // Update local state if we forwarded to the currently open chat
+        const currentState = useChatStore.getState();
+        if (currentState.selectedUser?._id === contactId) {
+          useChatStore.setState({ messages: [...currentState.messages, res.data] });
+        }
+      } catch (err) {
+        console.error("Failed to forward:", err);
+      }
     }
+
+    useChatStore.getState().getMyChatPartners(); // Refresh recent chats list
     setSending(false);
     toast.success(`Forwarded to ${selected.length} chat${selected.length > 1 ? "s" : ""}`);
     onClose();
