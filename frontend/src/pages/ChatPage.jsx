@@ -39,6 +39,7 @@ function ChatPage() {
     subscribeToGroupMessages();
     applyStoredTheme();
     return () => unsubscribeFromGroupMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const totalUnread   = Object.values(unreadCounts).reduce((a, b) => a + b, 0);

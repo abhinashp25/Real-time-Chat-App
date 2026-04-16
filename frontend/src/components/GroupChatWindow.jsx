@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useGroupStore } from "../store/useGroupStore";
 import { useAuthStore }  from "../store/useAuthStore";
 import {
@@ -30,13 +30,13 @@ export default function GroupChatWindow({ group, onClose }) {
   const typingRef = useRef(false);
   const containerRef = useRef(null);
 
-  const msgs   = groupMessages[group._id] || [];
+  const msgs   = useMemo(() => groupMessages[group._id] || [], [groupMessages, group._id]);
   const typers = groupTypingUsers[group._id] || {};
   const typingNames = Object.values(typers)
     .filter((n) => n !== authUser?.fullName)
     .join(", ");
 
-  useEffect(() => { fetchGroupMessages(group._id); }, [group._id]);
+  useEffect(() => { fetchGroupMessages(group._id); }, [group._id, fetchGroupMessages]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
 
   const handleTyping = useCallback((val) => {

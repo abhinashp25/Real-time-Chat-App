@@ -26,14 +26,21 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
   const isOnline = onlineUsers.includes(user._id);
   const lastSeen = lastSeenMap[user._id] || user.lastSeen;
 
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBlocked(isUserBlocked(user._id));
-  }, [user._id]);
+  }, [user._id, isUserBlocked]);
 
   function lastSeenLabel(iso) {
     if (!iso) return "";
     const d    = new Date(iso);
-    const diff = Date.now() - d.getTime();
+    const diff = now - d.getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 2)  return "last seen just now";
     if (mins < 60) return `last seen ${mins} min ago`;

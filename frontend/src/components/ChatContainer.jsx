@@ -11,7 +11,8 @@ import ReplyBar          from "./ReplyBar";
 import ForwardModal      from "./ForwardModal";
 import LinkPreviewCard   from "./LinkPreviewCard";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, X, ChevronDown } from "lucide-react";
+import { Sparkles, X, ChevronDown, Languages, Loader2 } from "lucide-react";
+import { useAIStore } from "../store/useAIStore";
 
 const REACTION_EMOJIS = ["👍","❤️","😂","😮","😢","🔥"];
 
@@ -146,6 +147,9 @@ export default function ChatContainer() {
   const [currentInput,  setCurrentInput]   = useState("");
   const [showScrollBtn, setShowScrollBtn]  = useState(false);
   const [showAISummary, setShowAISummary]  = useState(false);
+  const [translations,  setTranslations]   = useState({});
+  const [translatingId, setTranslatingId]  = useState(null);
+  const { translateMessage } = useAIStore();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -196,6 +200,20 @@ export default function ChatContainer() {
       senderName: isMine ? "You" : selectedUser.fullName,
     });
     setCtx(null);
+  };
+
+  const handleTranslate = async (msg) => {
+    if (!msg.text) return;
+    setCtx(null);
+    if (translations[msg._id]) {
+      // Toggle off
+      setTranslations(p => { const next = {...p}; delete next[msg._id]; return next; });
+      return;
+    }
+    setTranslatingId(msg._id);
+    const translated = await translateMessage(msg.text, "English");
+    setTranslations(p => ({ ...p, [msg._id]: translated }));
+    setTranslatingId(null);
   };
 
   const disappearLabel = (msg) => {
@@ -348,8 +366,19 @@ export default function ChatContainer() {
                           {msg.document && <DocumentBubble doc={msg.document} isMine={isMine} />}
                           {msg.text && (
                             <p className="text-[14.2px] leading-[1.5] break-words whitespace-pre-wrap">
-                              {searchQuery ? highlightMatch(msg.text, searchQuery) : msg.text}
+                              {searchQuery ? highlightMatch(translations[msg._id] || msg.text, searchQuery) : (translations[msg._id] || msg.text)}
                             </p>
+                          )}
+                          {translatingId === msg._id && (
+                            <div className="flex items-center gap-1.5 mt-1.5 opacity-60">
+                              <Loader2 size={12} className="animate-spin" />
+                              <span className="text-[10px]">Translating...</span>
+                            </div>
+                          )}
+                          {translations[msg._id] && translatingId !== msg._id && (
+                            <div className="flex items-center gap-1 mt-1 opacity-60 text-[10px] italic">
+                              <Languages size={10} /> Translated
+                            </div>
                           )}
                           {msg.linkPreview?.title && (
                             <LinkPreviewCard preview={msg.linkPreview} isMine={isMine} />
@@ -460,6 +489,10 @@ export default function ChatContainer() {
               onClick={() => { setForwardMsg(ctx.msg || messages.find(m=>m._id===ctx.msgId)); setCtx(null); }} />
             <CtxItem emoji="⭐" label="Star message"
               onClick={() => { toggleStarMessage(ctx.msgId); setCtx(null); }} />
+            {ctx.msg?.text && (
+              <CtxItem emoji="🌍" label={translations[ctx.msgId] ? "Show original" : "Translate to English"}
+                onClick={() => { handleTranslate(ctx.msg); }} />
+            )}
             <CtxItem emoji="📌" label={messages.find(m=>m._id===ctx.msgId)?.isPinned ? "Unpin" : "Pin message"}
               onClick={() => { togglePinMessage(ctx.msgId); setCtx(null); }} />
             <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "4px 0" }} />

@@ -29,7 +29,11 @@ export default function ChatHeader({ onAISummary }) {
   const [showContactInfo,  setShowContactInfo]   = useState(false);
   const [showDisappear,    setShowDisappear]     = useState(false);
   const [showScheduledList,setShowScheduledList] = useState(false);
-  const [now] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
   const menuRef   = useRef(null);
   const searchRef = useRef(null);
 

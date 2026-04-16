@@ -82,4 +82,14 @@ export const useAIStore = create((set, get) => ({
   },
 
   clearSmartReplies: () => set({ smartReplies: [] }),
+
+  translateMessage: async (text, targetLang = "English") => {
+    if (!text?.trim()) return text;
+    try {
+      const res = await axiosInstance.post("/ai/translate", { text, targetLang });
+      return res.data.translation || text;
+    } catch {
+      return text;
+    }
+  },
 }));
