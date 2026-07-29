@@ -253,8 +253,13 @@ export default function ChatHeader({ onAISummary }) {
                 style={{ color: "var(--text-muted)" }} />
               <input ref={searchRef} type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search in conversation…"
-                className="w-full py-2 pl-9 pr-8 text-sm rounded-full border-none focus:outline-none"
-                style={{ background: "var(--bg-input)", color: "var(--text-primary)" }} />
+                className="w-full py-2 pl-9 pr-8 text-sm rounded-full focus:outline-none"
+                style={{
+                  background: "var(--bg-input)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--border)",
+                  outline: "none",
+                }} />
               {searchQuery && (
                 <button onClick={() => setSearchQuery("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }}>

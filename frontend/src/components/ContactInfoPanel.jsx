@@ -309,10 +309,10 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
                 <MessageSquareXIcon size={22} />
               </div>
               <div>
-                <h3 className="text-[17px] font-bold text-white mb-1.5">
+                <h3 className="text-[17px] font-bold mb-1.5" style={{ color: "var(--text-primary)" }}>
                   {blocked ? `Unblock ${user.fullName}?` : `Block ${user.fullName}?`}
                 </h3>
-                <p className="text-[13px] text-white/55 leading-relaxed">
+                <p className="text-[13px] leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   {blocked
                     ? `This contact will be able to call you and send you messages again.`
                     : `Blocked contacts will no longer be able to call you or send you messages.`}
@@ -365,8 +365,8 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
                 <TrashIcon size={22} />
               </div>
               <div>
-                <h3 className="text-[17px] font-bold text-white mb-1.5">Clear this chat?</h3>
-                <p className="text-[13px] text-white/55 leading-relaxed">
+                <h3 className="text-[17px] font-bold mb-1.5" style={{ color: "var(--text-primary)" }}>Clear this chat?</h3>
+                <p className="text-[13px] leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   Are you sure you want to clear all messages in this chat? This action cannot be undone.
                 </p>
               </div>

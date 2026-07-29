@@ -34,7 +34,7 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onOpenDrawer })
     getMyChatPartners, chats, isUsersLoading, setSelectedUser,
     selectedUser, unreadCounts, activeFilter, setActiveFilter, sidebarSearch, setSidebarSearch,
     favourites = [], toggleFavourite, setActiveTab, typingUsers,
-    markChatArchived, setActiveFilter: _setFilter
+    markChatArchived, clearChat, setActiveFilter: _setFilter
   } = useChatStore();
   const { groups, selectedGroup } = useGroupStore();
   const { onlineUsers, authUser } = useAuthStore();
@@ -557,8 +557,8 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onOpenDrawer })
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center"
-            style={{ backdropFilter: "blur(6px)", background: "rgba(0,0,0,0.45)" }}
+            className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+            style={{ backdropFilter: "blur(6px)", background: "rgba(0,0,0,0.55)" }}
             onClick={() => setContextMenuConv(null)}
           >
             <motion.div
@@ -567,12 +567,12 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onOpenDrawer })
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 60, scale: 0.96 }}
               transition={{ type: "spring", stiffness: 340, damping: 28 }}
-              className="w-full max-w-sm rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl mx-0 sm:mx-4"
+              className="w-full max-w-sm rounded-t-3xl sm:rounded-2xl shadow-2xl mx-0 sm:mx-4 max-h-[75vh] sm:max-h-[85vh] flex flex-col overflow-hidden"
               style={{ background: "var(--bg-panel)", border: "1px solid var(--border)" }}
               onClick={e => e.stopPropagation()}
             >
               {/* User Info Header */}
-              <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
+              <div className="flex items-center gap-3 px-5 py-4 border-b flex-shrink-0" style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
                 {contextMenuConv.isGroup ? (
                   <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-lg font-bold brand-font border flex-shrink-0"
                     style={{ background: "var(--bg-input)", borderColor: "var(--border)", color: "var(--text-primary)" }}>
@@ -597,8 +597,8 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onOpenDrawer })
                 </button>
               </div>
 
-              {/* Action List */}
-              <div className="py-2">
+              {/* Action List (Scrollable) */}
+              <div className="py-2 overflow-y-auto no-scrollbar flex-1 min-h-0">
                 {[
                   {
                     icon: <Pin size={18} className="transform rotate-[45deg]" />,
@@ -621,10 +621,15 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onOpenDrawer })
                     icon: <Archive size={18} />,
                     label: contextMenuConv.isArchived ? "Unarchive chat" : "Archive chat",
                     color: "var(--text-primary)",
-                    action: () => {
+                    action: async () => {
                       if (!contextMenuConv.isGroup) {
-                        markChatArchived && markChatArchived(contextMenuConv._id, !contextMenuConv.isArchived);
-                        toast.success(contextMenuConv.isArchived ? "Chat unarchived 📬" : "Chat archived 📂");
+                        try {
+                          await axiosInstance.put(`/messages/archive/${contextMenuConv._id}`);
+                          markChatArchived && markChatArchived(contextMenuConv._id, !contextMenuConv.isArchived);
+                          toast.success(contextMenuConv.isArchived ? "Chat unarchived 📬" : "Chat archived 📂");
+                        } catch {
+                          toast.error("Could not update archive state");
+                        }
                       } else {
                         toast("Groups cannot be archived", { icon: "ℹ️" });
                       }
@@ -659,17 +664,19 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onOpenDrawer })
                     color: "#ef4444",
                     action: () => {
                       if (!contextMenuConv.isGroup) {
-                        // Optimistically remove from chat list
+                        const targetId = contextMenuConv._id;
+                        const targetName = contextMenuConv.displayName;
                         toast((t) => (
                           <div className="flex flex-col gap-2">
-                            <p className="text-sm font-medium">Delete chat with <b>{contextMenuConv.displayName}</b>?</p>
+                            <p className="text-sm font-medium">Delete chat with <b>{targetName}</b>?</p>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => {
                                   toast.dismiss(t.id);
+                                  clearChat && clearChat(targetId);
                                   toast.success("Chat deleted 🗑️");
                                 }}
-                                className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white bg-red-500"
+                                className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white bg-red-500 hover:bg-red-600"
                               >Delete</button>
                               <button onClick={() => toast.dismiss(t.id)}
                                 className="flex-1 py-1.5 rounded-lg text-xs font-semibold"
@@ -689,7 +696,7 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onOpenDrawer })
                   <button
                     key={idx}
                     onClick={item.action}
-                    className="w-full flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[var(--bg-hover)] active:bg-[var(--bg-active)] text-left"
+                    className="w-full flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[var(--bg-hover)] active:bg-[var(--bg-active)] text-left cursor-pointer"
                   >
                     <span style={{ color: item.color }}>{item.icon}</span>
                     <span className="text-[15px] font-medium" style={{ color: item.color }}>

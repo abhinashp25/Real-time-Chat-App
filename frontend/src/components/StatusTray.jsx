@@ -522,6 +522,8 @@ export function StatusViewer() {
   const pinchRef     = useRef(null); // { startDist, startZoom }
   const lastTapRef   = useRef(0);
 
+  const [statusToDelete, setStatusToDelete] = useState(null);
+
   // Status Reply logic
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
@@ -799,7 +801,8 @@ export function StatusViewer() {
             className={`absolute top-8 right-14 text-red-400 bg-white/10 hover:bg-red-500/20 p-2 rounded-full z-50 transition-all duration-300 ${isHolding ? "opacity-0 -translate-y-2 pointer-events-none" : "opacity-100 translate-y-0"}`}
             onClick={(e) => {
               e.stopPropagation();
-              deleteStatus(currentItem._id);
+              setIsPaused(true);
+              setStatusToDelete(currentItem._id);
             }}
             title="Delete this status update"
           >
@@ -814,6 +817,76 @@ export function StatusViewer() {
         >
           <X size={16} />
         </button>
+
+        {/* Confirm Delete Status Modal */}
+        <AnimatePresence>
+          {statusToDelete && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+              onClick={(e) => {
+                e.stopPropagation();
+                setStatusToDelete(null);
+                setIsPaused(false);
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 20 }}
+                transition={{ type: "spring", stiffness: 300, damping: 28 }}
+                className="w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col gap-4 text-center border"
+                style={{
+                  background: "var(--bg-panel)",
+                  borderColor: "var(--border)",
+                  boxShadow: "0 24px 60px rgba(0,0,0,0.8)"
+                }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-1">
+                  <Trash2 size={24} />
+                </div>
+                <div>
+                  <h3 className="text-[18px] font-bold mb-1.5" style={{ color: "var(--text-primary)" }}>
+                    Delete status update?
+                  </h3>
+                  <p className="text-[13px] leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                    Are you sure you want to delete this status update? It will be permanently removed for everyone.
+                  </p>
+                </div>
+                <div className="flex gap-3 mt-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setStatusToDelete(null);
+                      setIsPaused(false);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl border text-[13.5px] font-semibold hover:bg-white/5 transition-colors"
+                    style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const id = statusToDelete;
+                      setStatusToDelete(null);
+                      setIsPaused(false);
+                      await deleteStatus(id);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-[13.5px] font-bold text-white transition-colors"
+                  >
+                    Delete Status
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Content Body Viewer — hold to pause (text/non-image statuses use this; images manage their own hold) */}
         <div 

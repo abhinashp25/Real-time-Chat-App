@@ -460,7 +460,7 @@ export default function ChatContainer() {
                           exit={{ opacity: 0, scale: 0.85, y: 4 }}
                           transition={{ duration: 0.12 }}
                           className={`absolute z-30 -top-9 ${isMine ? "right-0" : "left-0"} flex items-center gap-[2px] px-2 py-1.5 rounded-full shadow-2xl`}
-                          style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 4px 20px rgba(0,0,0,0.6)" }}
+                          style={{ background: "var(--bg-panel)", border: "1px solid var(--border)", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}
                           onMouseEnter={() => setHovered(msg._id)}
                           onMouseLeave={() => setHovered(null)}
                         >
@@ -769,12 +769,12 @@ function CtxItem({ icon, label, onClick, danger }) {
       onTouchEnd={() => setHovered(false)}
       className="w-full text-left flex items-center gap-3 transition-colors"
       style={{
-        color: danger ? "#fc8181" : "#e5e7eb",
+        color: danger ? "#fc8181" : "var(--text-primary)",
         padding: "10px 14px",
         margin: "1px 4px",
         width: "calc(100% - 8px)",
         borderRadius: 10,
-        background: hovered ? "rgba(255,255,255,0.10)" : "transparent",
+        background: hovered ? "var(--bg-hover)" : "transparent",
         fontSize: 13.5,
         cursor: "pointer",
         border: "none",
@@ -783,7 +783,7 @@ function CtxItem({ icon, label, onClick, danger }) {
         alignItems: "center",
         gap: 10,
       }}>
-      <span style={{ width: 18, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: danger ? "#f87171" : "rgba(255,255,255,0.55)" }}>{icon}</span>
+      <span style={{ width: 18, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: danger ? "#f87171" : "var(--text-muted)" }}>{icon}</span>
       <span style={{ fontWeight: 500 }}>{label}</span>
     </button>
   );
@@ -800,7 +800,7 @@ function DatePill({ date }) {
   return (
     <div className="flex justify-center my-4">
       <span className="text-[12px] px-4 py-1 rounded-full select-none"
-        style={{ background: "#111111", color: "#a3a3a3", border: "1px solid rgba(255,255,255,0.06)" }}>
+        style={{ background: "var(--bg-panel)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
         {label}
       </span>
     </div>
@@ -915,9 +915,9 @@ function AudioBubble({ src, isMine }) {
   return (
     <div className="flex items-center gap-2.5 mb-1" style={{ minWidth: 230, maxWidth: 290 }}>
       <div className="w-9 h-9 rounded-full flex-shrink-0 overflow-hidden"
-        style={{ background: isMine ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.15)" }}>
+        style={{ background: isMine ? "rgba(255,255,255,0.22)" : "var(--bg-hover)" }}>
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full p-2"
-          style={{ color: isMine ? "rgba(255,255,255,0.7)" : "white" }}>
+          style={{ color: isMine ? "rgba(255,255,255,0.85)" : "var(--accent)" }}>
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
         </svg>
@@ -926,13 +926,13 @@ function AudioBubble({ src, isMine }) {
         <div className="flex items-center gap-1.5">
           <button onClick={toggle}
             className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 shadow-sm"
-            style={{ background: isMine ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)" }}>
+            style={{ background: isMine ? "rgba(255,255,255,0.28)" : "var(--accent-dim)" }}>
             {playing ? (
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: "white" }}>
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: isMine ? "white" : "var(--accent)" }}>
                 <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
               </svg>
             ) : (
-              <svg className="w-3.5 h-3.5 ml-0.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: "white" }}>
+              <svg className="w-3.5 h-3.5 ml-0.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: isMine ? "white" : "var(--accent)" }}>
                 <polygon points="5,3 19,12 5,21"/>
               </svg>
             )}
@@ -953,24 +953,24 @@ function AudioBubble({ src, isMine }) {
                   style={{
                     height: `${h * 2.5}px`,
                     background: active
-                      ? (isMine ? "rgba(255,255,255,0.95)" : "#8b5cf6")
-                      : (isMine ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.2)"),
+                      ? (isMine ? "rgba(255,255,255,0.95)" : "var(--accent)")
+                      : (isMine ? "rgba(255,255,255,0.28)" : "var(--text-muted)"),
                   }} />
               );
             })}
           </div>
         </div>
         <div className="flex items-center justify-between mt-0.5 pl-10 pr-1">
-          <p className="text-[10px]" style={{ color: isMine ? "rgba(255,255,255,0.6)" : "#a3a3a3" }}>
+          <p className="text-[10px]" style={{ color: isMine ? "rgba(255,255,255,0.7)" : "var(--text-muted)" }}>
             {fmtTime(playing || progress > 0 ? progress : validDuration)}
           </p>
           <button
             onClick={cycleSpeed}
             className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded-full transition-all active:scale-95"
             style={{
-              background: isMine ? "rgba(255,255,255,0.2)" : "rgba(139,92,246,0.25)",
-              color: isMine ? "white" : "#a78bfa",
-              border: isMine ? "1px solid rgba(255,255,255,0.3)" : "1px solid rgba(139,92,246,0.4)"
+              background: isMine ? "rgba(255,255,255,0.2)" : "var(--accent-dim)",
+              color: isMine ? "white" : "var(--accent)",
+              border: isMine ? "1px solid rgba(255,255,255,0.3)" : "1px solid var(--border-focus)"
             }}
             title="Playback Speed"
           >
