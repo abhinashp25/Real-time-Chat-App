@@ -59,7 +59,9 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
     : disappearSeconds === 604800 ? "7 days"
     : "Custom";
 
-  const handleBlock = async () => {
+  const [showBlockConfirmModal, setShowBlockConfirmModal] = useState(false);
+
+  const confirmBlockAction = async () => {
     if (blocked) {
       await unblockUser(user._id);
       setBlocked(false);
@@ -67,6 +69,7 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
       await blockUser(user._id);
       setBlocked(true);
     }
+    setShowBlockConfirmModal(false);
   };
 
   if (showStarred) {
@@ -180,7 +183,13 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
         <div className="mb-2" style={{ background: "var(--bg-panel)" }}>
           {/* Mute notifications */}
           <button
-            onClick={() => setNotifications(v => !v)}
+            onClick={() => {
+              const next = !notifications;
+              setNotifications(next);
+              toast(next ? `🔔 Unmuted notifications for ${user.fullName}` : `🔕 Muted notifications for ${user.fullName}`, {
+                icon: next ? "🔔" : "🔕"
+              });
+            }}
             className="w-full flex items-center justify-between px-5 py-4 transition-colors"
             style={{ borderBottom: "1px solid var(--border)" }}
             onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
@@ -211,7 +220,10 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
 
           {/* Starred messages */}
           <button
-            onClick={() => setShowStarred(true)}
+            onClick={() => {
+              setShowStarred(true);
+              toast("Viewing starred messages", { icon: "⭐" });
+            }}
             className="w-full flex items-center justify-between px-5 py-4 transition-colors"
             style={{ borderBottom: "1px solid var(--border)" }}
             onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
@@ -245,7 +257,7 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
         {/* Danger actions */}
         <div className="mb-8" style={{ background: "var(--bg-panel)" }}>
           <button
-            onClick={handleBlock}
+            onClick={() => setShowBlockConfirmModal(true)}
             className="w-full flex items-center gap-4 px-5 py-4 transition-colors text-red-500"
             style={{ borderBottom: "1px solid var(--border)" }}
             onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
@@ -269,6 +281,62 @@ export default function ContactInfoPanel({ user, onClose, onClearChat, onArchive
           )}
         </div>
       </div>
+
+      {/* Confirm Block / Unblock Modal */}
+      <AnimatePresence>
+        {showBlockConfirmModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowBlockConfirmModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 28 }}
+              className="w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col gap-4 text-center"
+              style={{
+                background: "var(--bg-panel)",
+                border: "1px solid var(--border)",
+                boxShadow: "0 24px 60px rgba(0,0,0,0.6)"
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className={`w-12 h-12 rounded-full ${blocked ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"} flex items-center justify-center mx-auto mb-1`}>
+                <MessageSquareXIcon size={22} />
+              </div>
+              <div>
+                <h3 className="text-[17px] font-bold text-white mb-1.5">
+                  {blocked ? `Unblock ${user.fullName}?` : `Block ${user.fullName}?`}
+                </h3>
+                <p className="text-[13px] text-white/55 leading-relaxed">
+                  {blocked
+                    ? `This contact will be able to call you and send you messages again.`
+                    : `Blocked contacts will no longer be able to call you or send you messages.`}
+                </p>
+              </div>
+              <div className="flex gap-3 mt-2">
+                <button
+                  onClick={() => setShowBlockConfirmModal(false)}
+                  className="flex-1 py-2.5 rounded-xl border text-[13.5px] font-semibold hover:bg-white/5 transition-colors"
+                  style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmBlockAction}
+                  className={`flex-1 py-2.5 rounded-xl ${blocked ? "bg-[#00a884] hover:bg-[#00a884]/90" : "bg-red-500 hover:bg-red-600"} text-[13.5px] font-bold text-white transition-colors`}
+                >
+                  {blocked ? "Unblock" : "Block"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Confirm Clear Chat Modal */}
       <AnimatePresence>

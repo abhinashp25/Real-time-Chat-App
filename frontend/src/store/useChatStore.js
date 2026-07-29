@@ -165,14 +165,33 @@ export const useChatStore = create((set, get) => ({
   // -- Messages with pagination --
   getMessagesByUserId: async (userId) => {
     const hasCache = !!get().messagesCache?.[userId];
+    const initialMsgs = get().messagesCache?.[userId] || [];
     set({
-      messages: get().messagesCache?.[userId] || [],
+      messages: initialMsgs,
       isMessagesLoading: !hasCache,
       hasMoreMessages: false
     });
     try {
       const res = await axiosInstance.get(`/messages/${userId}?limit=40`);
-      const fetchedMessages = res.data.messages || [];
+      let fetchedMessages = res.data.messages || [];
+
+      // E2EE Decrypt fetched messages if sharedKey is ready
+      const sharedKey = get().sharedKeys[userId];
+      if (sharedKey) {
+        fetchedMessages = await Promise.all(
+          fetchedMessages.map(async (m) => {
+            if (m.text && typeof m.text === "string" && m.text.startsWith('{"__e2ee__":true')) {
+              try {
+                const envelope = JSON.parse(m.text);
+                const plain = await decryptMessage(sharedKey, { iv: envelope.iv, data: envelope.data });
+                if (plain !== null) return { ...m, text: plain };
+              } catch {}
+            }
+            return m;
+          })
+        );
+      }
+
       set({
         messages: fetchedMessages,
         hasMoreMessages: res.data.hasMore,
@@ -196,7 +215,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   loadMoreMessages: async () => {
-    const { messages, selectedUser, hasMoreMessages, isLoadingMore } = get();
+    const { messages, selectedUser, hasMoreMessages, isLoadingMore, sharedKeys } = get();
     if (!selectedUser || !hasMoreMessages || isLoadingMore) return;
 
     const oldest = messages[0];
@@ -205,7 +224,25 @@ export const useChatStore = create((set, get) => ({
 
     try {
       const res = await axiosInstance.get(`/messages/${selectedUser._id}?before=${oldest._id}&limit=40`);
-      const loaded = [...res.data.messages, ...messages];
+      let fetchedNew = res.data.messages || [];
+
+      const sharedKey = sharedKeys[selectedUser._id];
+      if (sharedKey) {
+        fetchedNew = await Promise.all(
+          fetchedNew.map(async (m) => {
+            if (m.text && typeof m.text === "string" && m.text.startsWith('{"__e2ee__":true')) {
+              try {
+                const envelope = JSON.parse(m.text);
+                const plain = await decryptMessage(sharedKey, { iv: envelope.iv, data: envelope.data });
+                if (plain !== null) return { ...m, text: plain };
+              } catch {}
+            }
+            return m;
+          })
+        );
+      }
+
+      const loaded = [...fetchedNew, ...messages];
       set({
         messages:        loaded,
         hasMoreMessages: res.data.hasMore,
@@ -524,6 +561,27 @@ export const useChatStore = create((set, get) => ({
         const theirPublicKey = await importPublicKey(publicKey);
         const sharedKey = await deriveSharedKey(e2eeKeyPair.privateKey, theirPublicKey);
         set({ sharedKeys: { ...sharedKeys, [from]: sharedKey } });
+
+        // Decrypt any messages currently in cache/view for this user
+        const cached = get().messagesCache[from] || [];
+        if (cached.length > 0) {
+          const decryptedCache = await Promise.all(
+            cached.map(async (m) => {
+              if (m.text && typeof m.text === "string" && m.text.startsWith('{"__e2ee__":true')) {
+                try {
+                  const envelope = JSON.parse(m.text);
+                  const plain = await decryptMessage(sharedKey, { iv: envelope.iv, data: envelope.data });
+                  if (plain !== null) return { ...m, text: plain };
+                } catch {}
+              }
+              return m;
+            })
+          );
+          set({
+            messagesCache: { ...get().messagesCache, [from]: decryptedCache },
+            ...(get().selectedUser && String(get().selectedUser._id) === String(from) ? { messages: decryptedCache } : {})
+          });
+        }
 
         // Reply with our own public key so the other side can also derive the shared key
         const myPubKeyStr = await exportPublicKey(e2eeKeyPair);

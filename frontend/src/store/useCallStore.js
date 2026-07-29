@@ -202,6 +202,14 @@ export const useCallStore = create(persist((set, get) => ({
       profilePic: authUser.profilePic || null,
       isVideo,
     });
+
+    // 30-second timeout for outgoing calls if unanswered
+    setTimeout(() => {
+      if (get().callState === "RINGING" && !get().incomingCall) {
+        toast("No answer", { icon: "📞" });
+        get().endCall();
+      }
+    }, 30000);
   },
 
   // ─────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Plus, Camera, Type, X, ChevronRight, Search, ArrowLeft } from "lucide-react";
+import { Plus, Camera, Type, X, ChevronRight, Search, ArrowLeft, Lock, Trash2, Globe, UserX, UserCheck, Check } from "lucide-react";
 import { useStatusStore } from "../store/useStatusStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
@@ -111,11 +111,22 @@ export default function StatusTray() {
     ({ user }) => user.fullName?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+
   return (
     <div className="flex flex-col h-full bg-[var(--bg-primary)]">
       {/* Header */}
       <div className="flex items-center justify-between px-4 h-[64px] flex-shrink-0" style={{ background: "var(--bg-secondary)", borderBottom: "1px solid var(--border)" }}>
         <h1 className="text-[20px] font-bold brand-font tracking-wide" style={{ color: "var(--text-primary)" }}>Status</h1>
+        <button
+          onClick={() => setShowPrivacyModal(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all hover:bg-[var(--bg-hover)] cursor-pointer"
+          style={{ background: "var(--bg-input)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          title="Status Privacy"
+        >
+          <Lock size={13} className="text-[#00a884]" />
+          <span>Privacy</span>
+        </button>
       </div>
 
       {/* Search bar — liquid glass pill (matches chat page) */}
@@ -242,7 +253,169 @@ export default function StatusTray() {
         </div>
       </div>
 
+      {/* Status Privacy Modal */}
+      <AnimatePresence>
+        {showPrivacyModal && (
+          <StatusPrivacyModal isOpen={showPrivacyModal} onClose={() => setShowPrivacyModal(false)} />
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+function StatusPrivacyModal({ isOpen, onClose }) {
+  const { statusPrivacy, setStatusPrivacy, allowedUsers: storeAllowed, deniedUsers: storeDenied } = useStatusStore();
+  const { allContacts, getAllContacts } = useChatStore();
+
+  const [selectedOption, setSelectedOption] = useState(statusPrivacy || "everyone");
+  const [selectedContactIds, setSelectedContactIds] = useState(
+    statusPrivacy === "selected" ? storeAllowed : statusPrivacy === "except" ? storeDenied : []
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      getAllContacts();
+      setSelectedOption(statusPrivacy || "everyone");
+      setSelectedContactIds(
+        statusPrivacy === "selected" ? storeAllowed : statusPrivacy === "except" ? storeDenied : []
+      );
+    }
+  }, [isOpen, statusPrivacy, storeAllowed, storeDenied, getAllContacts]);
+
+  if (!isOpen) return null;
+
+  const toggleContact = (id) => {
+    setSelectedContactIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleSave = () => {
+    let allowed = [];
+    let denied = [];
+    if (selectedOption === "selected") allowed = selectedContactIds;
+    if (selectedOption === "except") denied = selectedContactIds;
+    setStatusPrivacy(selectedOption, allowed, denied);
+    onClose();
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[110] flex items-center justify-center p-4"
+      style={{ backdropFilter: "blur(20px)", background: "rgba(0,0,0,0.85)" }}
+    >
+      <motion.div
+        initial={{ scale: 0.95 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0.95 }}
+        className="w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border"
+        style={{ background: "var(--bg-secondary)", borderColor: "var(--border)" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <Lock size={18} className="text-[#00a884]" />
+            <span className="text-white font-bold text-base">Status Privacy</span>
+          </div>
+          <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar">
+          <p className="text-xs text-[#a3a3a3]">Who can see my status updates</p>
+
+          {/* Options */}
+          <div className="space-y-2">
+            {[
+              { id: "everyone", label: "My contacts", desc: "Share with all your contacts", icon: <Globe size={18} /> },
+              { id: "except", label: "My contacts except...", desc: "Hide status from selected contacts", icon: <UserX size={18} /> },
+              { id: "selected", label: "Only share with...", desc: "Only share with selected contacts", icon: <UserCheck size={18} /> }
+            ].map((opt) => (
+              <label
+                key={opt.id}
+                onClick={() => setSelectedOption(opt.id)}
+                className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                  selectedOption === opt.id ? "bg-[var(--accent-dim)] border-[#00a884]" : "bg-[var(--bg-input)] border-[var(--border)]"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[#00a884] bg-white/5">
+                    {opt.icon}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{opt.label}</p>
+                    <p className="text-xs text-[#a3a3a3]">{opt.desc}</p>
+                  </div>
+                </div>
+                <input
+                  type="radio"
+                  name="statusPrivacy"
+                  checked={selectedOption === opt.id}
+                  onChange={() => setSelectedOption(opt.id)}
+                  className="accent-[#00a884] w-4 h-4"
+                />
+              </label>
+            ))}
+          </div>
+
+          {/* Contacts selection if except or selected */}
+          {selectedOption !== "everyone" && (
+            <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
+              <p className="text-xs font-semibold text-white">
+                {selectedOption === "except" ? "Select contacts to hide status from:" : "Select contacts to share status with:"}
+              </p>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto no-scrollbar">
+                {allContacts.length === 0 ? (
+                  <p className="text-xs text-[#a3a3a3] py-2">No contacts found</p>
+                ) : (
+                  allContacts.map((c) => {
+                    const isChecked = selectedContactIds.includes(c._id);
+                    return (
+                      <div
+                        key={c._id}
+                        onClick={() => toggleContact(c._id)}
+                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3">
+                          <img src={c.profilePic || "/avatar.png"} alt={c.fullName} className="w-8 h-8 rounded-full object-cover" />
+                          <span className="text-sm font-medium text-white">{c.fullName}</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleContact(c._id)}
+                          className="accent-[#00a884] w-4 h-4"
+                        />
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-white/10 flex justify-end gap-2" style={{ background: "rgba(0,0,0,0.3)" }}>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-semibold rounded-full text-white/70 hover:bg-white/10 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-5 py-2 text-xs font-semibold rounded-full text-white bg-[#00a884] hover:bg-[#00a884]/90 transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -333,7 +506,8 @@ export function WriteStatusModal() {
 
 // Separate component to handle internal state & layout of full screen viewer cleanly
 export function StatusViewer() {
-  const { activeStatus, setActiveStatus, markAsViewed } = useStatusStore();
+  const { activeStatus, setActiveStatus, markAsViewed, deleteStatus } = useStatusStore();
+  const { authUser } = useAuthStore();
   const { setStatusViewerOpen } = useChatStore();
 
   const statusViewerRef = useRef(null);
@@ -618,6 +792,20 @@ export function StatusViewer() {
             </p>
           </div>
         </div>
+
+        {/* Delete Button (for user's own status items) */}
+        {String(activeStatus.user._id) === String(authUser?._id) && (
+          <button 
+            className={`absolute top-8 right-14 text-red-400 bg-white/10 hover:bg-red-500/20 p-2 rounded-full z-50 transition-all duration-300 ${isHolding ? "opacity-0 -translate-y-2 pointer-events-none" : "opacity-100 translate-y-0"}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteStatus(currentItem._id);
+            }}
+            title="Delete this status update"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
 
         {/* Exit Button */}
         <button 

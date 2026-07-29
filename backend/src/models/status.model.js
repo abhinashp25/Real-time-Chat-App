@@ -15,6 +15,23 @@ const statusSchema = new mongoose.Schema({
     enum: ["text", "image"],
     default: "text",
   },
+  privacy: {
+    type: String,
+    enum: ["everyone", "contacts", "selected", "except"],
+    default: "everyone",
+  },
+  allowedUsers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  deniedUsers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

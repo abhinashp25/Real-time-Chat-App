@@ -5,7 +5,7 @@ import { validateBase64File } from "../lib/fileValidator.js";
 
 export const uploadStatus = async (req, res) => {
   try {
-    const { content, type } = req.body;
+    const { content, type, privacy = "everyone", allowedUsers = [], deniedUsers = [] } = req.body;
     let imageUrl = content;
 
     if (type === "image") {
@@ -24,7 +24,10 @@ export const uploadStatus = async (req, res) => {
     const newStatus = new Status({
       userId: req.user._id,
       content: imageUrl,
-      type
+      type,
+      privacy,
+      allowedUsers,
+      deniedUsers
     });
 
     await newStatus.save();
@@ -39,15 +42,45 @@ export const uploadStatus = async (req, res) => {
   }
 };
 
+export const deleteStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const status = await Status.findById(id);
+    if (!status) {
+      return res.status(404).json({ message: "Status update not found" });
+    }
+    if (status.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized to delete this status" });
+    }
+    await Status.findByIdAndDelete(id);
+    res.status(200).json({ message: "Status deleted successfully", statusId: id });
+  } catch (error) {
+    console.error("Error in deleteStatus controller: ", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const getStatuses = async (req, res) => {
   try {
-    // In a real app we'd fetch contacts'. We'll just fetch all online users' or all users' recent statuses for simplicity.
-    // Fetching all statuses from the last 24h. They are auto-deleted by TTL anyway.
+    const myId = req.user._id.toString();
     const statuses = await Status.find()
       .populate("userId", "-password")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(statuses);
+    const filtered = statuses.filter(s => {
+      const ownerId = s.userId?._id?.toString() || s.userId?.toString();
+      if (ownerId === myId) return true; // User can always view their own status
+
+      if (s.privacy === "selected") {
+        return s.allowedUsers?.some(id => id.toString() === myId);
+      }
+      if (s.privacy === "except") {
+        return !s.deniedUsers?.some(id => id.toString() === myId);
+      }
+      return true; // "everyone" or "contacts"
+    });
+
+    res.status(200).json(filtered);
   } catch (error) {
     console.error("Error in getStatuses controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });

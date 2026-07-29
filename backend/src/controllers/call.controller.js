@@ -1,27 +1,41 @@
 import Call from "../models/Call.js";
 
-const METERED_API_KEY = "MvuvyIskyECloIuYKpPiik55mUZWbIVtnkTKWRiQxLS4TerM";
-const METERED_DOMAIN  = "talksphere.metered.live";
+const METERED_API_KEY = process.env.METERED_API_KEY || "";
+const METERED_DOMAIN  = process.env.METERED_DOMAIN  || "";
+
+// High-quality free public STUN servers (always available, no sign-up needed)
+const FREE_ICE_SERVERS = [
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "stun:stun1.l.google.com:19302" },
+  { urls: "stun:stun2.l.google.com:19302" },
+  { urls: "stun:stun3.l.google.com:19302" },
+  { urls: "stun:stun4.l.google.com:19302" },
+  { urls: "stun:stun.cloudflare.com:3478" },
+  { urls: "stun:stun.relay.metered.ca:80" },
+];
 
 /**
- * Fetch fresh time-limited TURN credentials from Metered.ca.
- * The API key stays on the server — never exposed to the browser.
+ * Fetch fresh time-limited TURN credentials from Metered.ca (if configured).
+ * Falls back to free public STUN servers if no credentials are set.
  */
 export const getIceServers = async (_req, res) => {
-  try {
-    const url = `https://${METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${METERED_API_KEY}`;
-    const resp = await fetch(url);
-    const iceServers = await resp.json();
-    res.json(iceServers);
-  } catch (error) {
-    console.error("Failed to fetch Metered ICE servers:", error.message);
-    // Fallback: Google STUN only
-    res.json([
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" },
-    ]);
+  // Use Metered TURN if env vars are properly configured
+  if (METERED_API_KEY && METERED_DOMAIN) {
+    try {
+      const url = `https://${METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${METERED_API_KEY}`;
+      const resp = await fetch(url, { signal: AbortSignal.timeout(4000) });
+      if (resp.ok) {
+        const iceServers = await resp.json();
+        return res.json(iceServers);
+      }
+    } catch {
+      // fall through to free servers
+    }
   }
+  // Always-available free servers — reliable for most network conditions
+  res.json(FREE_ICE_SERVERS);
 };
+
 
 export const saveCallLog = async (req, res) => {
   try {

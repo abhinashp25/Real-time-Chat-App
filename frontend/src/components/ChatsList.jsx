@@ -463,7 +463,9 @@ export default function ChatsList({ onSelectUser, onSelectGroup, onOpenDrawer })
                           {conv.isGroup && typeof conv.lastMsgObj === 'string' ? (
                             conv.lastMsgObj
                           ) : conv.lastMsgObj.text ? (
-                            conv.lastMsgObj.text.includes("Missed voice call") ? (
+                            conv.lastMsgObj.text.startsWith('{"__e2ee__":true') || conv.lastMsgObj.text.includes('"__e2ee__":true') ? (
+                              <span className="italic opacity-80">🔒 Encrypted message</span>
+                            ) : conv.lastMsgObj.text.includes("Missed voice call") ? (
                               <span className="inline-flex items-center gap-1 text-red-500 font-semibold">
                                 <PhoneMissed size={12} className="inline flex-shrink-0" />
                                 <span>Missed voice call</span>

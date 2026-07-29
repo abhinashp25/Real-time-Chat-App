@@ -543,7 +543,11 @@ export default function ChatContainer() {
                           {msg.document && <DocumentBubble doc={msg.document} isMine={isMine} />}
                           {msg.text && (
                             <p className="text-[14.2px] leading-[1.5] break-words whitespace-pre-wrap">
-                              {msg.text.includes("Missed voice call") ? (
+                              {msg.text.startsWith('{"__e2ee__":true') || msg.text.includes('"__e2ee__":true') ? (
+                                <span className="italic opacity-80 flex items-center gap-1.5 py-0.5">
+                                  🔒 Encrypted message
+                                </span>
+                              ) : msg.text.includes("Missed voice call") ? (
                                 <span className="flex items-center gap-1.5 text-red-400 font-semibold py-0.5">
                                   <PhoneMissed size={16} className="text-red-500 flex-shrink-0" />
                                   <span>Missed voice call</span>

@@ -185,7 +185,7 @@ export default function CallOverlay() {
           vibrateAudioRef.current = vib;
           vib.play().catch(() => {});
         }
-      } else if (isRemoteRinging) {
+      } else {
         // ── Outgoing Call Ringing (Default: community-ring-tone.mp3) ──
         const ringUrl = "/ringing/community-ring-tone.mp3";
         const rRing = new Audio(ringUrl);
