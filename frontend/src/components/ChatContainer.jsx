@@ -610,13 +610,15 @@ export default function ChatContainer() {
                         {Object.entries(grouped).map(([emoji, count]) => (
                           <button key={emoji}
                             onClick={(e) => { e.stopPropagation(); toggleReaction(msg._id, emoji); }}
-                            className="text-[12px] px-2 py-0.5 rounded-full border transition-all"
+                            className="text-[12px] px-2 py-0.5 rounded-full border transition-all flex items-center gap-1 cursor-pointer shadow-sm hover:scale-105 active:scale-95"
                             style={{
-                              background: myReaction === emoji ? "rgba(255,255,255,0.15)" : "rgba(26,34,53,0.85)",
-                              borderColor: myReaction === emoji ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.08)",
+                              background: myReaction === emoji ? "var(--accent-dim)" : "var(--bg-panel)",
+                              borderColor: myReaction === emoji ? "var(--accent)" : "var(--border)",
                               color: "var(--text-primary)",
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.12)"
                             }}>
-                            {emoji}{count > 1 ? ` ${count}` : ""}
+                            <span className="text-[13px] leading-none">{emoji}</span>
+                            {count > 1 && <span className="text-[11px] font-bold" style={{ color: "var(--text-secondary)" }}>{count}</span>}
                           </button>
                         ))}
                       </div>
